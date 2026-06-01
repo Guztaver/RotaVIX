@@ -3,6 +3,7 @@
 
 [phases.setup]
   nixPkgs = ["nodejs"]
+  cmds = ["corepack enable"]
 
 [phases.build]
   cmds = ["npm run build"]
