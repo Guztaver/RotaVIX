@@ -1,10 +1,11 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import type { Request, Response, NextFunction } from 'express';
+import type { Response } from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { AppModule } from './app.module';
+import { SpaFallbackFilter } from './spa-fallback.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -51,20 +52,8 @@ async function bootstrap() {
       },
     });
 
-    // SPA fallback – serve index.html for all non-API GET requests
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      if (req.path.startsWith('/api/')) {
-        return next();
-      }
-      if (req.method === 'GET') {
-        return res.sendFile(join(webDistPath, 'index.html'), (err) => {
-          if (err) {
-            next();
-          }
-        });
-      }
-      next();
-    });
+    // SPA fallback — serve index.html for unmatched non-API GET requests
+    app.useGlobalFilters(new SpaFallbackFilter(webDistPath));
   }
 
   await app.listen(process.env.PORT ?? 3000);
