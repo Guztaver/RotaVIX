@@ -1,0 +1,7 @@
+{
+  "name": "RotaVIX",
+  "description": "🚌 Aplicativo de transporte rodoviário — Angular + NestJS",
+  "build": {
+    "method": "docker-compose"
+  }
+}

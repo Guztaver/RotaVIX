@@ -10,6 +10,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
     networks:
       - rotavix-network
     healthcheck:
