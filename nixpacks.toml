@@ -2,7 +2,8 @@
 # Docs: https://nixpacks.com/docs
 
 [phases.setup]
-  nixPkgs = ["nodejs", "npm"]
+  # npm vem incluso com nodejs no Nix
+  nixPkgs = ["nodejs"]
 
 # O Nixpacks detecta automaticamente Node.js e roda:
 #   npm ci && npm run build

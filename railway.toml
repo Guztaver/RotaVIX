@@ -1,47 +1,32 @@
-# Railway — Deploy automático do RotaVIX
+# Railway — Deploy do RotaVIX (2 serviços)
 # Docs: https://docs.railway.com
+
+# Cada serviço aponta para seu subdiretório.
+# No dashboard do Railway, crie 2 serviços a partir deste repo:
+#   1. rotavix-api  → Root Directory: api/rotavix-api
+#   2. rotavix-web  → Root Directory: web/rotavix-web
 
 [build]
   builder = "NIXPACKS"
 
-# ─────────── Backend (NestJS) ───────────
-
 [service.api]
   name = "rotavix-api"
-  startCommand = "cd api/rotavix-api && npm ci && npm run build && node dist/main"
-  buildCommand = "cd api/rotavix-api && npm ci && npm run build"
+  root = "api/rotavix-api"
+
+  [service.api.build]
+    builder = "NIXPACKS"
 
   [service.api.deploy]
     healthcheckPath = "/"
-    healthcheckTimeout = 10
     restartPolicyType = "ALWAYS"
-
-  [service.api.environment]
-    NODE_ENV = "production"
-    PORT = "3000"
-
-  [service.api.cors]
-    origin = "https://rotavix-web.up.railway.app"
-    methods = "GET,HEAD,PUT,PATCH,POST,DELETE"
-    credentials = true
-
-# ─────────── Frontend (Angular) ──────────
 
 [service.web]
   name = "rotavix-web"
-  startCommand = "cd web/rotavix-web && npm ci && NG_CLI_ANALYTICS=false npx ng build --configuration production && npx http-server dist/rotavix-web -p $PORT --proxy http://localhost:3000"
-  buildCommand = "cd web/rotavix-web && npm ci"
+  root = "web/rotavix-web"
+
+  [service.web.build]
+    builder = "NIXPACKS"
 
   [service.web.deploy]
     healthcheckPath = "/"
     restartPolicyType = "ALWAYS"
-
-  [service.web.environment]
-    NODE_ENV = "production"
-
-# ─────────── Network ─────────────────────
-
-[network]
-  # Services communicate internally via service names:
-  #   api → rotavix-api
-  #   web → rotavix-web
