@@ -1,31 +1,26 @@
-# Railway — Deploy do RotaVIX (2 serviços)
+# Railway — Deploy do RotaVIX
+# Usa Dockerfiles existentes (já testados e funcionando)
 # Docs: https://docs.railway.com
 
-# Cada serviço aponta para seu subdiretório.
-# No dashboard do Railway, crie 2 serviços a partir deste repo:
-#   1. rotavix-api  → Root Directory: api/rotavix-api
-#   2. rotavix-web  → Root Directory: web/rotavix-web
-
-[build]
-  builder = "NIXPACKS"
-
+# Serviço 1: Backend API
 [service.api]
   name = "rotavix-api"
   root = "api/rotavix-api"
 
   [service.api.build]
-    builder = "NIXPACKS"
+    dockerfilePath = "Dockerfile"
 
   [service.api.deploy]
     healthcheckPath = "/"
     restartPolicyType = "ALWAYS"
 
+# Serviço 2: Frontend Web
 [service.web]
   name = "rotavix-web"
   root = "web/rotavix-web"
 
   [service.web.build]
-    builder = "NIXPACKS"
+    dockerfilePath = "Dockerfile"
 
   [service.web.deploy]
     healthcheckPath = "/"
