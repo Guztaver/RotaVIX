@@ -1,0 +1,47 @@
+# Railway — Deploy automático do RotaVIX
+# Docs: https://docs.railway.com
+
+[build]
+  builder = "NIXPACKS"
+
+# ─────────── Backend (NestJS) ───────────
+
+[service.api]
+  name = "rotavix-api"
+  startCommand = "cd api/rotavix-api && npm ci && npm run build && node dist/main"
+  buildCommand = "cd api/rotavix-api && npm ci && npm run build"
+
+  [service.api.deploy]
+    healthcheckPath = "/"
+    healthcheckTimeout = 10
+    restartPolicyType = "ALWAYS"
+
+  [service.api.environment]
+    NODE_ENV = "production"
+    PORT = "3000"
+
+  [service.api.cors]
+    origin = "https://rotavix-web.up.railway.app"
+    methods = "GET,HEAD,PUT,PATCH,POST,DELETE"
+    credentials = true
+
+# ─────────── Frontend (Angular) ──────────
+
+[service.web]
+  name = "rotavix-web"
+  startCommand = "cd web/rotavix-web && npm ci && NG_CLI_ANALYTICS=false npx ng build --configuration production && npx http-server dist/rotavix-web -p $PORT --proxy http://localhost:3000"
+  buildCommand = "cd web/rotavix-web && npm ci"
+
+  [service.web.deploy]
+    healthcheckPath = "/"
+    restartPolicyType = "ALWAYS"
+
+  [service.web.environment]
+    NODE_ENV = "production"
+
+# ─────────── Network ─────────────────────
+
+[network]
+  # Services communicate internally via service names:
+  #   api → rotavix-api
+  #   web → rotavix-web

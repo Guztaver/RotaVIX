@@ -1,0 +1,13 @@
+# Vercel — Deploy do Frontend Angular
+# RotaVIX frontend config
+{
+  "buildCommand": "cd web/rotavix-web && npm ci && NG_CLI_ANALYTICS=false npx ng build --configuration production",
+  "outputDirectory": "web/rotavix-web/dist/rotavix-web/browser",
+  "installCommand": "cd web/rotavix-web && npm ci",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

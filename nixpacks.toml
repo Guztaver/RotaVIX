@@ -1,0 +1,26 @@
+# Nixpacks — Configuração de build para Railway e outras plataformas
+# Docs: https://nixpacks.com/docs
+
+[phases.setup]
+  nixPkgs = ["nodejs", "npm"]
+
+# O Nixpacks detecta automaticamente Node.js e roda:
+#   npm ci && npm run build
+# Para o backend, usamos o provider do NestJS
+# Para o frontend, usamos o provider do Angular
+
+# ───── Backend ─────
+
+[api]
+  [api.build]
+    cmds = ["cd api/rotavix-api && npm ci", "cd api/rotavix-api && npm run build"]
+  [api.start]
+    cmd = "cd api/rotavix-api && node dist/main"
+
+# ───── Frontend ─────
+
+[web]
+  [web.build]
+    cmds = ["cd web/rotavix-web && npm ci", "cd web/rotavix-web && NG_CLI_ANALYTICS=false npx ng build --configuration production"]
+  [web.start]
+    cmd = "npx http-server web/rotavix-web/dist/rotavix-web/browser -p $PORT -P http://localhost:3000"

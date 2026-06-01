@@ -1,0 +1,44 @@
+# Fly.io — Deploy do RotaVIX
+# Docs: https://fly.io/docs
+
+app = "rotavix"
+
+[build]
+
+# ─────────── Backend (NestJS) ───────────
+
+  [build.api]
+    image = "node:lts-alpine"
+    workdir = "/app/api/rotavix-api"
+
+  [build.api.steps]
+    install = "npm ci"
+    build   = "npm run build"
+
+# ─────────── Frontend (Angular) ─────────
+
+  [build.web]
+    image = "node:lts-alpine"
+    workdir = "/app/web/rotavix-web"
+
+  [build.web.steps]
+    install = "npm ci"
+    build   = "NG_CLI_ANALYTICS=false npx ng build"
+
+# ─────────── Runtime ─────────────────────
+
+[[services]]
+  name = "api"
+  internal_port = 3000
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+
+[[services]]
+  name = "web"
+  internal_port = 80
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20

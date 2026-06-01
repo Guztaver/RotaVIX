@@ -1,0 +1,31 @@
+# Render — Deploy do RotaVIX (render.com)
+# Docs: https://render.com/docs
+
+services:
+  # ─────────── Backend API ───────────
+  - type: web
+    name: rotavix-api
+    runtime: node
+    rootDir: api/rotavix-api
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/main
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+
+  # ─────────── Frontend Web ───────────
+  - type: static
+    name: rotavix-web
+    rootDir: web/rotavix-web
+    buildCommand: npm ci && NG_CLI_ANALYTICS=false npx ng build --configuration production
+    staticPublishPath: dist/rotavix-web/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_ENV
+        value: production
