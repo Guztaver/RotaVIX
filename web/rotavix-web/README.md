@@ -1,59 +1,66 @@
-# RotavixWeb
+# 🚌 RotaVIX — Frontend Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.13.
+Interface web em **Angular 19+** para o sistema de transporte rodoviário RotaVIX, implementada a partir de protótipo de alta fidelidade no Figma.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- **Framework**: Angular 19 (standalone components)
+- **Estilização**: SCSS com Design System próprio
+- **Formulários**: Reactive Forms com validação
+- **Estado**: Signals + RxJS
+- **Build**: esbuild (via `@angular/build`)
 
-```bash
-ng serve
-```
+## Design System
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Token | Valor |
+|-------|-------|
+| Primary | `#013271` |
+| Accent | `#76BE3F` |
+| Background | `#FEF7FF` |
+| Cards | `#FCF1FE` |
+| Dark Surface | `#2C2C2C` |
+| Font | System font stack |
 
-## Code scaffolding
+## Páginas
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+| Rota | Componente | Descrição |
+|------|-----------|-----------|
+| `/` | Home | Busca de passagens (origem, destino, data) |
+| `/routes` | Routes | Listagem de rotas disponíveis em cards |
+| `/booking/:id` | Booking | Reserva com formulário, assento e pagamento |
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Rodando localmente
 
 ```bash
-ng test
+npm install
+npm start
 ```
 
-## Running end-to-end tests
+Acesse `http://localhost:4200`
 
-For end-to-end (e2e) testing, run:
+> ⚠️ O backend precisa estar rodando em `http://localhost:3000`
+
+## Rodando com Docker
 
 ```bash
-ng e2e
+docker build -t rotavix-web .
+docker run -p 80:80 rotavix-web
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+O Nginx serve o Angular e faz proxy reverso de `/api/*` para o backend.
 
-## Additional Resources
+## Estrutura de diretórios
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```
+src/
+├── app/
+│   ├── components/header/    # Barra de navegação superior
+│   ├── pages/
+│   │   ├── home/             # Página inicial / busca
+│   │   ├── routes/           # Lista de rotas encontradas
+│   │   └── booking/          # Checkout e reserva
+│   ├── services/             # Serviço HTTP + estado
+│   └── app.routes.ts         # Configuração de rotas
+├── environments/             # Dev vs Prod (URL da API)
+└── styles.scss               # Design tokens e utilitários
+```
