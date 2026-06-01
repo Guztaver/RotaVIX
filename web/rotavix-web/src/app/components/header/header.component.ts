@@ -1,6 +1,5 @@
-import { Component, input, output } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -12,10 +11,7 @@ export class HeaderComponent {
   readonly showBack = input(false);
   readonly refreshed = output<void>();
 
-  constructor(
-    private readonly location: Location,
-    private readonly router: Router,
-  ) {}
+  constructor(private readonly location: Location) {}
 
   goBack(): void {
     this.location.back();

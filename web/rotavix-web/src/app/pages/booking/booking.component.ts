@@ -1,8 +1,8 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouteService, type BookingRequest, type RouteResult } from '../../services/route.service';
-import { Subscription } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import type { Subscription } from 'rxjs';
+import { type BookingRequest, RouteService } from '../../services/route.service';
 
 @Component({
   selector: 'app-booking',
@@ -71,7 +71,9 @@ export class BookingComponent implements OnInit, OnDestroy {
   }
 
   submitBooking(): void {
-    if (this.bookingForm.invalid || !this.routeData()) return;
+    if (this.bookingForm.invalid || !this.routeData()) {
+      return;
+    }
 
     const formValue = this.bookingForm.getRawValue();
     const booking: BookingRequest = {

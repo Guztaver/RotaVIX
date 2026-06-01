@@ -1,6 +1,6 @@
+import { HttpClient, type HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, finalize, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, type Observable, of, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 /* ------------------------------------------------------------------ */

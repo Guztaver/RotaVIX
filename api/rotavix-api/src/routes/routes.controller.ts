@@ -1,15 +1,15 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   Param,
-  Query,
   ParseIntPipe,
+  Post,
+  Query,
 } from '@nestjs/common';
+import type { CreateBookingDto } from './dto/create-booking.dto';
+import type { SearchRoutesDto } from './dto/search-routes.dto';
 import { RoutesService } from './routes.service';
-import { SearchRoutesDto } from './dto/search-routes.dto';
-import { CreateBookingDto } from './dto/create-booking.dto';
 
 @Controller('api')
 export class RoutesController {

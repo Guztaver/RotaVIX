@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouteService } from '../../services/route.service';
+import { Router } from '@angular/router';
 import type { RouteSearchParams } from '../../services/route.service';
+import { RouteService } from '../../services/route.service';
 
 @Component({
   selector: 'app-home',

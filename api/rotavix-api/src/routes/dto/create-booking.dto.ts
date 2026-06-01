@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsNotEmpty, Min, Max } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 export class CreateBookingDto {
   @IsNumber()

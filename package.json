@@ -1,12 +1,12 @@
 {
-  "name": "rotavix",
-  "version": "1.0.0",
-  "description": "RotaVIX — Aplicativo de transporte rodoviário",
-  "scripts": {
-    "start:api": "cd api/rotavix-api && npm run start:dev",
-    "start:web": "cd web/rotavix-web && npm start",
-    "build:api": "cd api/rotavix-api && npm run build",
-    "build:web": "cd web/rotavix-web && npx ng build",
-    "install:all": "cd api/rotavix-api && npm install && cd ../../web/rotavix-web && npm install"
-  }
+	"name": "rotavix",
+	"version": "1.0.0",
+	"description": "RotaVIX — Aplicativo de transporte rodoviário",
+	"scripts": {
+		"start:api": "cd api/rotavix-api && npm run start:dev",
+		"start:web": "cd web/rotavix-web && npm start",
+		"build:api": "cd api/rotavix-api && npm run build",
+		"build:web": "cd web/rotavix-web && npx ng build",
+		"install:all": "cd api/rotavix-api && npm install && cd ../../web/rotavix-web && npm install"
+	}
 }

@@ -1,8 +1,8 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { RouteService, type RouteResult } from '../../services/route.service';
-import { Subscription } from 'rxjs';
+import { Component, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import type { Subscription } from 'rxjs';
+import { type RouteResult, RouteService } from '../../services/route.service';
 
 @Component({
   selector: 'app-routes',
