@@ -1,0 +1,13 @@
+{
+  "name": "rotavix",
+  "private": true,
+  "description": "RotaVIX — Aplicativo de transporte rodoviário (Angular + NestJS + Docker)",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": ["api/rotavix-api"],
+  "scripts": {
+    "build": "cd api/rotavix-api && npm ci && npm run build",
+    "start": "cd api/rotavix-api && node dist/main"
+  }
+}
