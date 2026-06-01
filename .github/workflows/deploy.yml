@@ -54,7 +54,7 @@ jobs:
           node-version: lts/*
           cache: pnpm
           cache-dependency-path: web/rotavix-web/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild
       - run: NG_CLI_ANALYTICS=false pnpm exec ng build --configuration production
 
   # ─── Build & Push Docker Images ────────────────────────────────
