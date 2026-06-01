@@ -5,9 +5,15 @@
   "engines": {
     "node": ">=22"
   },
-  "workspaces": ["api/rotavix-api"],
+  "workspaces": [
+    "api/rotavix-api"
+  ],
   "scripts": {
-    "build": "cd api/rotavix-api && npm ci && npm run build",
-    "start": "cd api/rotavix-api && node dist/main"
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "cd web/rotavix-web && pnpm install --frozen-lockfile && pnpm exec ng build --configuration production",
+    "build:api": "cd api/rotavix-api && npm ci && npm run build",
+    "start": "cd api/rotavix-api && node dist/main",
+    "start:dev": "cd api/rotavix-api && npm run start:dev",
+    "start:web": "cd web/rotavix-web && pnpm start"
   }
 }

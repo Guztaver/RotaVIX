@@ -1,0 +1,51 @@
+# ─── Dependencies ──────────────────────────────
+**/node_modules/
+
+# ─── Build outputs ─────────────────────────────
+**/dist/
+**/.angular/
+
+# ─── Git ────────────────────────────────────────
+.git/
+.gitattributes
+.gitignore
+
+# ─── Docs & meta ────────────────────────────────
+*.md
+LICENSE
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
+
+# ─── CI / deploy (not needed in image) ──────────
+.github/
+netlify.toml
+render.yaml
+vercel.json
+fly.toml
+nixpacks.toml
+railway.toml
+
+# ─── Editor & OS ────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ─── Logs & cache ────────────────────────────────
+*.log
+.npm/
+.cache/
+coverage/
+
+# ─── Docker files (keep docker-compose.yml out) ──
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# ─── Other ───────────────────────────────────────
+biome.json
+rotavix.svg

@@ -1,39 +1,13 @@
 services:
-  api:
+  app:
     build:
-      context: ./api/rotavix-api
+      context: .
       dockerfile: Dockerfile
-    container_name: rotavix-api
+    container_name: rotavix
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
-    networks:
-      - rotavix-network
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-  web:
-    build:
-      context: ./web/rotavix-web
-      dockerfile: Dockerfile
-    container_name: rotavix-web
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    depends_on:
-      api:
-        condition: service_healthy
-    networks:
-      - rotavix-network
-
-networks:
-  rotavix-network:
-    driver: bridge
