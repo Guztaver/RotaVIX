@@ -1,0 +1,111 @@
+.home {
+  padding: var(--space-8) 0 var(--space-16);
+}
+
+/* --- Hero --- */
+.home__hero {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.home__title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.home__subtitle {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Search card --- */
+.home__card {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+.home__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.home__swap-btn {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  border: 2px solid var(--color-border);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin: calc(-1 * var(--space-3)) 0;
+
+  &:hover {
+    border-color: var(--color-primary);
+    background: rgba(1, 50, 113, 0.05);
+  }
+}
+
+.home__submit-btn {
+  margin-top: var(--space-2);
+  width: 100%;
+}
+
+/* --- Error --- */
+.home__error {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(220, 38, 38, 0.08);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* --- Features --- */
+.home__features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-16);
+}
+
+.home__feature {
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.home__feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  background: rgba(118, 190, 63, 0.1);
+  border-radius: var(--radius-xl);
+}
+
+.home__feature h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.home__feature p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

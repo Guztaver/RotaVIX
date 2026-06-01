@@ -1,0 +1,134 @@
+<section class="home">
+  <div class="container">
+    <!-- Hero -->
+    <div class="home__hero">
+      <h1 class="home__title">Encontre sua próxima <span class="text-accent">viagem</span></h1>
+      <p class="home__subtitle">
+        Compare rotas, preços e horários das melhores viações do Brasil.
+      </p>
+    </div>
+
+    <!-- Search form card -->
+    <div class="home__card card">
+      <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="home__form">
+        <!-- Origin -->
+        <div class="form-group">
+          <label class="form-label" for="origin">Origem</label>
+          <input
+            id="origin"
+            type="text"
+            class="form-input"
+            formControlName="origin"
+            placeholder="Cidade de partida"
+            autocomplete="off"
+          />
+          @if (searchForm.controls.origin.touched && searchForm.controls.origin.invalid) {
+            <span class="form-error">
+              @if (searchForm.controls.origin.errors?.['required']) { Informe a origem. }
+              @if (searchForm.controls.origin.errors?.['minlength']) { Mínimo 3 caracteres. }
+            </span>
+          }
+        </div>
+
+        <!-- Swap button (mobile: between origin/destination) -->
+        <button type="button" class="home__swap-btn" (click)="swapLocations()" aria-label="Inverter origem e destino">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </button>
+
+        <!-- Destination -->
+        <div class="form-group">
+          <label class="form-label" for="destination">Destino</label>
+          <input
+            id="destination"
+            type="text"
+            class="form-input"
+            formControlName="destination"
+            placeholder="Cidade de chegada"
+            autocomplete="off"
+          />
+          @if (searchForm.controls.destination.touched && searchForm.controls.destination.invalid) {
+            <span class="form-error">
+              @if (searchForm.controls.destination.errors?.['required']) { Informe o destino. }
+              @if (searchForm.controls.destination.errors?.['minlength']) { Mínimo 3 caracteres. }
+            </span>
+          }
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label class="form-label" for="date">Data da viagem</label>
+          <input
+            id="date"
+            type="date"
+            class="form-input"
+            formControlName="date"
+            [min]="minDate"
+          />
+          @if (searchForm.controls.date.touched && searchForm.controls.date.invalid) {
+            <span class="form-error">Selecione a data da viagem.</span>
+          }
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-accent btn-lg home__submit-btn"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="spinner"></span>
+            Buscando…
+          } @else {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            Buscar passagens
+          }
+        </button>
+      </form>
+
+      <!-- Global error -->
+      @if (error()) {
+        <div class="home__error">
+          <p>{{ error() }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Features -->
+    <div class="home__features">
+      <div class="home__feature">
+        <div class="home__feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        </div>
+        <h3>+500 destinos</h3>
+        <p>Conexões para todo o Brasil</p>
+      </div>
+      <div class="home__feature">
+        <div class="home__feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </div>
+        <h3>Melhor preço</h3>
+        <p>Compare e economize</p>
+      </div>
+      <div class="home__feature">
+        <div class="home__feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <h3>Reserva rápida</h3>
+        <p>Em menos de 2 minutos</p>
+      </div>
+    </div>
+  </div>
+</section>

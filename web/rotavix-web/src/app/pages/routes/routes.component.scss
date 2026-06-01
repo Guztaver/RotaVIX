@@ -1,0 +1,223 @@
+.routes {
+  padding: var(--space-6) 0 var(--space-12);
+}
+
+/* --- Header --- */
+.routes__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.routes__header-info {
+  flex: 1;
+}
+
+.routes__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.routes__subtitle {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- Error --- */
+.routes__error {
+  text-align: center;
+  padding: var(--space-8);
+  background: rgba(220, 38, 38, 0.06);
+  border-radius: var(--radius-lg);
+
+  p {
+    color: var(--color-error);
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* --- Loading skeleton --- */
+.routes__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.routes__skeleton {
+  height: 160px;
+  background: linear-gradient(90deg, var(--color-card) 25%, #f3e8f8 50%, var(--color-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* --- Route list --- */
+.routes__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Route card --- */
+.routes__card {
+  padding: var(--space-5) var(--space-6);
+  cursor: pointer;
+}
+
+.routes__card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.routes__company {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.routes__company-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--color-white);
+}
+
+.routes__company-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.routes__bus-type {
+  margin-top: 2px;
+}
+
+.routes__price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.routes__price-value {
+  display: block;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: var(--line-height-tight);
+}
+
+.routes__price-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+}
+
+/* --- Timeline --- */
+.routes__timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+  margin-bottom: var(--space-4);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 72px;
+    right: 72px;
+    top: 22px;
+    height: 2px;
+    background: var(--color-border);
+  }
+}
+
+.routes__time-block {
+  text-align: left;
+  z-index: 1;
+}
+
+.routes__time-block--end {
+  text-align: right;
+}
+
+.routes__time {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.routes__station {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.routes__timeline-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.routes__duration {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  background: var(--color-card);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+/* --- Bottom row --- */
+.routes__card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.routes__seats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.routes__amenities {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+/* --- Empty --- */
+.routes__empty {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+
+  h2 {
+    margin-top: var(--space-4);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+  }
+
+  p {
+    margin-top: var(--space-2);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-6);
+  }
+}

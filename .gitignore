@@ -1,0 +1,54 @@
+# ─── Dependencies ──────────────────────────────
+node_modules/
+
+# ─── Build outputs ─────────────────────────────
+dist/
+.next/
+out/
+
+# ─── Angular ────────────────────────────────────
+.angular/
+*.ngsummary.json
+
+# ─── Environment ────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── OS & Editor ────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Logs ───────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── Cache ──────────────────────────────────────
+.cache/
+.npm/
+.eslintcache
+*.tsbuildinfo
+
+# ─── Testing ────────────────────────────────────
+coverage/
+
+# ─── Terraform / IaC ─────────────────────────────
+.terraform/
+*.tfstate*
+
+# ─── Docker ──────────────────────────────────────
+docker-compose.override.yml
