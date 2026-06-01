@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { SearchRoutesDto } from './dto/search-routes.dto';
 import { RoutesService } from './routes.service';
@@ -28,11 +20,7 @@ export class RoutesController {
 
   @Get('routes/search')
   search(@Query() query: SearchRoutesDto) {
-    return this.routesService.search(
-      query.origin,
-      query.destination,
-      query.date,
-    );
+    return this.routesService.search(query.origin, query.destination, query.date);
   }
 
   @Get('routes/:id')
