@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 
 export interface BusRoute {
@@ -242,14 +238,10 @@ export class RoutesService {
     let results = this.routes;
 
     if (origin) {
-      results = results.filter(
-        (r) => r.origin.toLowerCase() === origin.toLowerCase(),
-      );
+      results = results.filter((r) => r.origin.toLowerCase() === origin.toLowerCase());
     }
     if (destination) {
-      results = results.filter(
-        (r) => r.destination.toLowerCase() === destination.toLowerCase(),
-      );
+      results = results.filter((r) => r.destination.toLowerCase() === destination.toLowerCase());
     }
     if (date) {
       results = results.filter((r) => r.date === date);
@@ -280,9 +272,7 @@ export class RoutesService {
       (b) => b.routeId === dto.routeId && b.seatNumber === dto.seatNumber,
     );
     if (seatTaken) {
-      throw new BadRequestException(
-        `Assento ${dto.seatNumber} já está ocupado nesta rota`,
-      );
+      throw new BadRequestException(`Assento ${dto.seatNumber} já está ocupado nesta rota`);
     }
 
     route.availableSeats -= 1;
@@ -311,8 +301,6 @@ export class RoutesService {
   }
 
   getBookingsByUsername(username: string): Booking[] {
-    return this.bookings.filter(
-      (b) => b.username?.toLowerCase() === username.toLowerCase(),
-    );
+    return this.bookings.filter((b) => b.username?.toLowerCase() === username.toLowerCase());
   }
 }

@@ -24,17 +24,13 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
       exceptionFactory: (errors) => {
         const messages = errors.flatMap((err) => {
-          const constraints = err.constraints
-            ? Object.values(err.constraints)
-            : [];
-          if (constraints.length > 0) return constraints;
+          const constraints = err.constraints ? Object.values(err.constraints) : [];
+          if (constraints.length > 0) { return constraints; }
           const childrenMsgs =
             err.children?.flatMap((child) =>
               child.constraints ? Object.values(child.constraints) : [],
             ) ?? [];
-          return childrenMsgs.length > 0
-            ? childrenMsgs
-            : [`Campo "${err.property}" inválido.`];
+          return childrenMsgs.length > 0 ? childrenMsgs : [`Campo "${err.property}" inválido.`];
         });
         // Return a BadRequestException with a single formatted message string
         const { BadRequestException } = require('@nestjs/common');
@@ -50,26 +46,14 @@ async function bootstrap() {
   // ── Serve Angular static files (production monolith) ──────────────
   const webDistPath =
     process.env.WEB_DIST_PATH ||
-    join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'web',
-      'rotavix-web',
-      'dist',
-      'rotavix-web',
-      'browser',
-    );
+    join(__dirname, '..', '..', '..', 'web', 'rotavix-web', 'dist', 'rotavix-web', 'browser');
 
   if (existsSync(webDistPath)) {
     // Static assets – JS, CSS, images, fonts, etc.
     app.useStaticAssets(webDistPath, {
       index: false,
       setHeaders: (res: Response, filePath: string) => {
-        if (
-          /\.(?:js|css|png|jpe?g|gif|ico|svg|woff2?|ttf|eot)$/.test(filePath)
-        ) {
+        if (/\.(?:js|css|png|jpe?g|gif|ico|svg|woff2?|ttf|eot)$/.test(filePath)) {
           res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         }
       },

@@ -19,6 +19,7 @@ export class AuthService {
   private setCookie(name: string, value: string, days: number): void {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
+    // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API not widely supported yet
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
   }
 
@@ -28,6 +29,7 @@ export class AuthService {
   }
 
   private deleteCookie(name: string): void {
+    // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API not widely supported yet
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
   }
 
@@ -56,7 +58,9 @@ export class AuthService {
   /* ------------------------------------------------------------------ */
 
   getStoredUsername(): string | null {
-    if (!this.hasConsent()) return null;
+    if (!this.hasConsent()) {
+      return null;
+    }
     return this.getCookie(USERNAME_KEY);
   }
 
@@ -65,9 +69,13 @@ export class AuthService {
    * Returns false if consent hasn't been given yet.
    */
   login(name: string): boolean {
-    if (!this.hasConsent()) return false;
+    if (!this.hasConsent()) {
+      return false;
+    }
     const trimmed = name.trim();
-    if (trimmed.length < 2) return false;
+    if (trimmed.length < 2) {
+      return false;
+    }
     this.setCookie(USERNAME_KEY, trimmed, COOKIE_MAX_AGE_DAYS);
     this.username.set(trimmed);
     return true;

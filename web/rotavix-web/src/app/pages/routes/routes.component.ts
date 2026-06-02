@@ -78,7 +78,6 @@ export class RoutesComponent implements OnInit, OnDestroy {
           return a.price - b.price;
         case 'duration':
           return this.parseDurationMinutes(a.duration) - this.parseDurationMinutes(b.duration);
-        case 'departure':
         default:
           return a.departureTime.localeCompare(b.departureTime);
       }
@@ -128,13 +127,13 @@ export class RoutesComponent implements OnInit, OnDestroy {
   private parseDurationMinutes(duration: string): number {
     const parts = duration.split(':');
     if (parts.length === 2) {
-      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      return Number.parseInt(parts[0], 10) * 60 + Number.parseInt(parts[1], 10);
     }
     // Try "Xh Ymin" format
     const hMatch = duration.match(/(\d+)h/);
     const mMin = duration.match(/(\d+)min/);
-    const h = hMatch ? parseInt(hMatch[1], 10) : 0;
-    const m = mMin ? parseInt(mMin[1], 10) : 0;
+    const h = hMatch ? Number.parseInt(hMatch[1], 10) : 0;
+    const m = mMin ? Number.parseInt(mMin[1], 10) : 0;
     return h * 60 + m;
   }
 }
