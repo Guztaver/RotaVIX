@@ -49,6 +49,103 @@ export interface BookingResponse {
   createdAt: string;
 }
 
+/** Structured error for the UI */
+export interface AppError {
+  /** Short user-friendly summary */
+  summary: string;
+  /** Optional detailed messages (e.g. individual validation errors) */
+  details?: string[];
+  /** HTTP status code if available */
+  status?: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* Error extraction helpers                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Parse an HttpErrorResponse into a user-friendly AppError.
+ * Handles NestJS ValidationPipe errors (string, string[], or object),
+ * network errors, and generic HTTP errors.
+ */
+function extractError(err: HttpErrorResponse): AppError {
+  // Network error (offline, CORS, timeout)
+  if (err.status === 0) {
+    return {
+      summary: 'Sem conexão com o servidor.',
+      details: ['Verifique sua internet e tente novamente.'],
+      status: 0,
+    };
+  }
+
+  const body = err.error;
+  const rawMessage: unknown = body?.message ?? body?.error ?? err.message;
+
+  // NestJS ValidationPipe often returns message as an array of strings
+  if (Array.isArray(rawMessage)) {
+    const details = rawMessage.map((m) => String(m));
+    return {
+      summary: 'Dados inválidos. Corrija os erros abaixo:',
+      details,
+      status: err.status,
+    };
+  }
+
+  // Single string message
+  if (typeof rawMessage === 'string' && rawMessage.length > 0) {
+    return {
+      summary: rawMessage,
+      status: err.status,
+    };
+  }
+
+  // Object with nested messages (NestJS class-validator sometimes returns this)
+  if (typeof rawMessage === 'object' && rawMessage !== null) {
+    const details = flattenErrorObject(rawMessage as Record<string, unknown>);
+    if (details.length > 0) {
+      return {
+        summary: 'Dados inválidos. Verifique os campos abaixo:',
+        details,
+        status: err.status,
+      };
+    }
+  }
+
+  // Fallback for specific HTTP statuses
+  switch (err.status) {
+    case 400:
+      return { summary: 'Requisição inválida. Verifique os dados enviados.', status: 400 };
+    case 404:
+      return { summary: 'Recurso não encontrado.', status: 404 };
+    case 500:
+      return { summary: 'Erro interno do servidor. Tente novamente mais tarde.', status: 500 };
+    default:
+      return { summary: 'Ocorreu um erro inesperado. Tente novamente.', status: err.status };
+  }
+}
+
+/** Recursively flatten a nested error object into user-friendly strings */
+function flattenErrorObject(obj: Record<string, unknown>, prefix = ''): string[] {
+  const result: string[] = [];
+  for (const [key, value] of Object.entries(obj)) {
+    const label = prefix ? `${prefix}.${key}` : key;
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === 'string') {
+          result.push(item);
+        } else if (typeof item === 'object' && item !== null) {
+          result.push(...flattenErrorObject(item as Record<string, unknown>, label));
+        }
+      }
+    } else if (typeof value === 'string') {
+      result.push(value);
+    } else if (typeof value === 'object' && value !== null) {
+      result.push(...flattenErrorObject(value as Record<string, unknown>, label));
+    }
+  }
+  return result;
+}
+
 /* ------------------------------------------------------------------ */
 /* Service                                                            */
 /* ------------------------------------------------------------------ */
@@ -59,7 +156,7 @@ export class RouteService {
 
   /* --- State signals --- */
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<AppError | null>(null);
 
   readonly routes = signal<RouteResult[]>([]);
   readonly selectedRoute = signal<RouteResult | null>(null);
@@ -87,8 +184,7 @@ export class RouteService {
       .pipe(
         tap((results) => this.routes.set(results)),
         catchError((err: HttpErrorResponse) => {
-          const message = err.error?.message ?? err.message ?? 'Falha ao buscar rotas.';
-          this.error.set(message);
+          this.error.set(extractError(err));
           return of([]);
         }),
         finalize(() => this.loading.set(false)),
@@ -106,9 +202,8 @@ export class RouteService {
     return this.http.get<RouteResult>(`${this.apiBase}/routes/${id}`).pipe(
       tap((route) => this.selectedRoute.set(route)),
       catchError((err: HttpErrorResponse) => {
-        const message = err.error?.message ?? err.message ?? 'Falha ao carregar a rota.';
-        this.error.set(message);
-        return throwError(() => new Error(message));
+        this.error.set(extractError(err));
+        return throwError(() => new Error(extractError(err).summary));
       }),
       finalize(() => this.loading.set(false)),
     );
@@ -125,9 +220,8 @@ export class RouteService {
     return this.http.post<BookingResponse>(`${this.apiBase}/bookings`, booking).pipe(
       tap((result) => this.bookingResult.set(result)),
       catchError((err: HttpErrorResponse) => {
-        const message = err.error?.message ?? err.message ?? 'Falha ao criar reserva.';
-        this.error.set(message);
-        return throwError(() => new Error(message));
+        this.error.set(extractError(err));
+        return throwError(() => new Error(extractError(err).summary));
       }),
       finalize(() => this.loading.set(false)),
     );

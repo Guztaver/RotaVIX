@@ -24,8 +24,19 @@ export class HomeComponent {
     date: ['', Validators.required],
   });
 
-  /** Minimum date for the date picker (today) */
   readonly minDate = new Date().toISOString().split('T')[0];
+
+  /** Popular destinations for quick-pick chips */
+  readonly popularDestinations = [
+    { city: 'São Paulo', state: 'SP' },
+    { city: 'Rio de Janeiro', state: 'RJ' },
+    { city: 'Belo Horizonte', state: 'MG' },
+    { city: 'Curitiba', state: 'PR' },
+    { city: 'Salvador', state: 'BA' },
+    { city: 'Brasília', state: 'DF' },
+    { city: 'Fortaleza', state: 'CE' },
+    { city: 'Florianópolis', state: 'SC' },
+  ];
 
   async onSubmit(): Promise<void> {
     if (this.searchForm.invalid) {
@@ -57,5 +68,15 @@ export class HomeComponent {
       origin: destination,
       destination: origin,
     });
+  }
+
+  quickPickOrigin(city: string): void {
+    this.searchForm.controls.origin.setValue(city);
+    this.searchForm.controls.origin.markAsTouched();
+  }
+
+  quickPickDestination(city: string): void {
+    this.searchForm.controls.destination.setValue(city);
+    this.searchForm.controls.destination.markAsTouched();
   }
 }

@@ -19,8 +19,31 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false,
       transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      exceptionFactory: (errors) => {
+        const messages = errors.flatMap((err) => {
+          const constraints = err.constraints
+            ? Object.values(err.constraints)
+            : [];
+          if (constraints.length > 0) return constraints;
+          const childrenMsgs =
+            err.children?.flatMap((child) =>
+              child.constraints ? Object.values(child.constraints) : [],
+            ) ?? [];
+          return childrenMsgs.length > 0
+            ? childrenMsgs
+            : [`Campo "${err.property}" inválido.`];
+        });
+        // Return a BadRequestException with a single formatted message string
+        const { BadRequestException } = require('@nestjs/common');
+        return new BadRequestException({
+          statusCode: 400,
+          error: 'Erro de validação',
+          message: messages.length === 1 ? messages[0] : messages,
+        });
+      },
     }),
   );
 

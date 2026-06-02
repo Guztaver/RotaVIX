@@ -6,42 +6,167 @@
         <h1 class="routes__title">Rotas encontradas</h1>
         @if (queryOrigin() && queryDestination()) {
           <p class="routes__subtitle">
-            {{ queryOrigin() }} → {{ queryDestination() }}
+            <span class="routes__route-tag">{{ queryOrigin() }}</span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="routes__route-arrow"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            <span class="routes__route-tag">{{ queryDestination() }}</span>
             @if (queryDate()) {
-              &nbsp;·&nbsp; {{ queryDate() | date: 'dd/MM/yyyy' }}
+              <span class="routes__route-date">{{ queryDate() | date: 'dd/MM/yyyy' }}</span>
             }
           </p>
         }
       </div>
-      <button class="btn btn-outline btn-sm" (click)="handleRefresh()">
-        @if (loading()) {
-          <span class="spinner"></span>
-        }
-        Atualizar
-      </button>
+      <div class="routes__header-actions">
+        <button class="btn btn-ghost btn-sm" (click)="showFilters.set(!showFilters())">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="4" y1="21" x2="4" y2="14" />
+            <line x1="4" y1="10" x2="4" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12" y2="3" />
+            <line x1="20" y1="21" x2="20" y2="16" />
+            <line x1="20" y1="12" x2="20" y2="3" />
+            <line x1="1" y1="14" x2="7" y2="14" />
+            <line x1="9" y1="8" x2="15" y2="8" />
+            <line x1="17" y1="16" x2="23" y2="16" />
+          </svg>
+          Filtros
+          @if (filterBusType()) {
+            <span class="badge badge-primary">{{ filterBusType() }}</span>
+          }
+        </button>
+        <button class="btn btn-outline btn-sm" (click)="handleRefresh()">
+          @if (loading()) {
+            <span class="spinner"></span>
+          }
+          Atualizar
+        </button>
+      </div>
     </div>
 
+    <!-- Sort bar -->
+    @if (routes().length > 0) {
+      <div class="routes__sort-bar">
+        <span class="routes__count"
+          >{{ filteredRoutes.length }} de {{ routes().length }} rotas</span
+        >
+        <div class="routes__sort-options">
+          <span class="routes__sort-label">Ordenar:</span>
+          <button
+            class="chip"
+            [class.chip--active]="sortBy() === 'departure'"
+            (click)="setSort('departure')"
+          >
+            Saída
+          </button>
+          <button
+            class="chip"
+            [class.chip--active]="sortBy() === 'price'"
+            (click)="setSort('price')"
+          >
+            Preço
+          </button>
+          <button
+            class="chip"
+            [class.chip--active]="sortBy() === 'duration'"
+            (click)="setSort('duration')"
+          >
+            Duração
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Filter panel -->
+    @if (showFilters() && routes().length > 0) {
+      <div class="routes__filters card animate-slide-down">
+        <div class="routes__filter-section">
+          <h4 class="routes__filter-title">Tipo de ônibus</h4>
+          <div class="routes__filter-chips">
+            @for (type of uniqueBusTypes; track type) {
+              <button
+                class="chip"
+                [class.chip--active]="filterBusType() === type"
+                (click)="toggleBusType(type)"
+              >
+                {{ type }}
+              </button>
+            }
+          </div>
+        </div>
+        @if (filterBusType() || filterMaxPrice() || sortBy() !== 'departure') {
+          <button class="btn btn-ghost btn-sm" (click)="clearFilters()">Limpar filtros</button>
+        }
+      </div>
+    }
+
     <!-- Error state -->
-    @if (error()) {
+    @if (error(); as err) {
       <div class="routes__error">
-        <p>{{ error() }}</p>
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-error)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <div>
+          <p class="routes__error-summary">{{ err.summary }}</p>
+          @if (err.details; as details) {
+            <ul class="routes__error-details">
+              @for (d of details; track $index) {
+                <li>{{ d }}</li>
+              }
+            </ul>
+          }
+        </div>
         <button class="btn btn-primary btn-sm" (click)="handleRefresh()">Tentar novamente</button>
       </div>
     }
 
     <!-- Loading skeleton -->
     @if (loading() && routes().length === 0) {
-      <div class="routes__loading">
+      <div class="routes__loading stagger">
         @for (i of [1, 2, 3]; track i) {
-          <div class="routes__skeleton card"></div>
+          <div class="routes__skeleton card">
+            <div class="skeleton" style="height: 24px; width: 40%; margin-bottom: 16px"></div>
+            <div class="skeleton" style="height: 16px; width: 60%; margin-bottom: 12px"></div>
+            <div class="skeleton" style="height: 48px; width: 100%"></div>
+          </div>
         }
       </div>
     }
 
     <!-- Route cards -->
-    @if (routes().length > 0) {
-      <div class="routes__list">
-        @for (route of routes(); track route.id) {
+    @if (filteredRoutes.length > 0) {
+      <div class="routes__list stagger">
+        @for (route of filteredRoutes; track route.id) {
           <article
             class="routes__card card card-hover"
             (click)="selectRoute(route)"
@@ -49,35 +174,43 @@
             tabindex="0"
             (keydown.enter)="selectRoute(route)"
           >
-            <!-- Top row: company + price -->
+            <!-- Company + Price row -->
             <div class="routes__card-top">
               <div class="routes__company">
-                @if (route.companyLogo) {
-                  <img
-                    [src]="route.companyLogo"
-                    [alt]="route.company"
-                    class="routes__company-logo"
-                  />
-                }
+                <div class="routes__company-avatar">
+                  @if (route.companyLogo) {
+                    <img
+                      [src]="route.companyLogo"
+                      [alt]="route.company"
+                      class="routes__company-logo"
+                    />
+                  } @else {
+                    <span>{{ route.company.charAt(0) }}</span>
+                  }
+                </div>
                 <div>
                   <h3 class="routes__company-name">{{ route.company }}</h3>
-                  <span class="routes__bus-type badge badge-primary">{{ route.busType }}</span>
+                  <span class="badge badge-primary">{{ route.busType }}</span>
                 </div>
               </div>
               <div class="routes__price">
                 <span class="routes__price-value">{{ formatPrice(route.price) }}</span>
-                <span class="routes__price-label">por pessoa</span>
+                <span class="routes__price-label">/ pessoa</span>
               </div>
             </div>
 
-            <!-- Timeline: departure → arrival -->
+            <!-- Timeline -->
             <div class="routes__timeline">
               <div class="routes__time-block">
                 <span class="routes__time">{{ route.departureTime }}</span>
                 <span class="routes__station">{{ route.origin }}</span>
               </div>
-              <div class="routes__timeline-line">
-                <span class="routes__duration">{{ route.duration }}</span>
+              <div class="routes__timeline-bar">
+                <div class="routes__timeline-dot routes__timeline-dot--start"></div>
+                <div class="routes__timeline-track">
+                  <span class="routes__duration">{{ route.duration }}</span>
+                </div>
+                <div class="routes__timeline-dot routes__timeline-dot--end"></div>
               </div>
               <div class="routes__time-block routes__time-block--end">
                 <span class="routes__time">{{ route.arrivalTime }}</span>
@@ -85,7 +218,7 @@
               </div>
             </div>
 
-            <!-- Bottom row: seats + amenities -->
+            <!-- Bottom: seats + amenities + CTA -->
             <div class="routes__card-bottom">
               <div class="routes__seats">
                 <svg
@@ -107,17 +240,38 @@
                   [class.text-warning]="route.availableSeats <= 5"
                   [class.text-success]="route.availableSeats > 5"
                 >
-                  {{ route.availableSeats }}
-                  {{ route.availableSeats === 1 ? 'assento' : 'assentos' }} disponíveis
+                  <strong>{{ route.availableSeats }}</strong>
+                  {{ route.availableSeats === 1 ? 'assento' : 'assentos' }}
                 </span>
               </div>
-              @if (route.amenities && route.amenities.length > 0) {
-                <div class="routes__amenities">
-                  @for (amenity of route.amenities; track amenity) {
-                    <span class="badge badge-accent">{{ amenity }}</span>
-                  }
-                </div>
-              }
+
+              <div class="routes__card-actions">
+                @if (route.amenities && route.amenities.length > 0) {
+                  <div class="routes__amenities">
+                    @for (amenity of route.amenities.slice(0, 3); track amenity) {
+                      <span class="badge badge-accent">{{ amenity }}</span>
+                    }
+                    @if (route.amenities.length > 3) {
+                      <span class="badge badge-accent">+{{ route.amenities.length - 3 }}</span>
+                    }
+                  </div>
+                }
+                <span class="routes__cta">
+                  Selecionar
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </article>
         }
@@ -125,11 +279,33 @@
     }
 
     <!-- Empty state -->
+    @if (!loading() && !error() && filteredRoutes.length === 0 && routes().length > 0) {
+      <div class="routes__empty">
+        <svg
+          width="56"
+          height="56"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-text-light)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <h2>Nenhuma rota com esses filtros</h2>
+        <p>Tente remover os filtros aplicados.</p>
+        <button class="btn btn-outline btn-sm" (click)="clearFilters()">Limpar filtros</button>
+      </div>
+    }
+
+    <!-- Empty state (no results at all) -->
     @if (!loading() && !error() && routes().length === 0 && queryOrigin()) {
       <div class="routes__empty">
         <svg
-          width="64"
-          height="64"
+          width="56"
+          height="56"
           viewBox="0 0 24 24"
           fill="none"
           stroke="var(--color-text-light)"

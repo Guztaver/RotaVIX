@@ -2,11 +2,11 @@
   <div class="container">
     <!-- Success state -->
     @if (bookingResult()) {
-      <div class="booking__success">
+      <div class="booking__success animate-scale-in">
         <div class="booking__success-icon">
           <svg
-            width="64"
-            height="64"
+            width="56"
+            height="56"
             viewBox="0 0 24 24"
             fill="none"
             stroke="var(--color-success)"
@@ -19,267 +19,497 @@
           </svg>
         </div>
         <h2>Reserva confirmada!</h2>
-        <p class="booking__success-code">
-          Reserva #<strong>{{ bookingResult()!.id }}</strong>
-        </p>
-        <p>
-          Passageiro: <strong>{{ bookingResult()!.passengerName }}</strong>
-        </p>
-        <p>
-          Assento: <strong>Nº {{ bookingResult()!.seatNumber }}</strong>
-        </p>
-        <p>Você receberá os detalhes por e-mail.</p>
-        <a routerLink="/" class="btn btn-primary">Voltar ao início</a>
+        <div class="booking__success-code">
+          <span>Reserva #</span>
+          <strong>{{ bookingResult()!.id }}</strong>
+        </div>
+        <div class="booking__success-details card">
+          <div class="booking__success-row">
+            <span>Passageiro</span>
+            <strong>{{ bookingResult()!.passengerName }}</strong>
+          </div>
+          <div class="booking__success-row">
+            <span>Documento</span>
+            <strong>{{ bookingResult()!.passengerDocument }}</strong>
+          </div>
+          <div class="booking__success-row">
+            <span>Assento</span>
+            <strong>Nº {{ bookingResult()!.seatNumber }}</strong>
+          </div>
+          <div class="booking__success-row">
+            <span>Data</span>
+            <strong>{{ bookingResult()!.bookingDate | date: 'dd/MM/yyyy' }}</strong>
+          </div>
+        </div>
+        <p class="booking__success-note">Você receberá os detalhes por e-mail.</p>
+        <a routerLink="/" class="btn btn-primary btn-lg">Voltar ao início</a>
       </div>
     }
-    <!-- Main form (when no success yet) -->
+    <!-- Main booking flow -->
     @else {
-      <!-- Route summary card -->
+      <!-- Route summary -->
       @if (routeData()) {
         <div class="booking__route-summary card">
-          <div class="flex items-center justify-between">
+          <div class="booking__route-summary-left">
+            <div class="booking__company-badge">
+              {{ routeData()!.company.charAt(0) }}
+            </div>
             <div>
               <h3 class="booking__company">{{ routeData()!.company }}</h3>
               <p class="booking__route-info">
                 {{ routeData()!.origin }} → {{ routeData()!.destination }} &nbsp;·&nbsp;
-                {{ routeData()!.departureTime }} &nbsp;·&nbsp; {{ routeData()!.duration }}
+                {{ routeData()!.departureTime }} &nbsp;·&nbsp;
+                {{ routeData()!.duration }} &nbsp;·&nbsp; {{ routeData()!.busType }}
               </p>
             </div>
-            <div class="booking__route-price">
-              {{ formatPrice(routeData()!.price) }}
-            </div>
+          </div>
+          <div class="booking__route-price">
+            <span class="booking__route-price-label">Valor por pessoa</span>
+            <span class="booking__route-price-value">{{ formatPrice(routeData()!.price) }}</span>
           </div>
         </div>
       }
+
+      <!-- Progress Stepper -->
+      <div class="booking__stepper">
+        <div
+          class="booking__step"
+          [class.booking__step--active]="step() === 'details'"
+          [class.booking__step--done]="step() === 'confirm'"
+        >
+          <div class="booking__step-number">1</div>
+          <span class="booking__step-label">Dados</span>
+        </div>
+        <div
+          class="booking__step-line"
+          [class.booking__step-line--done]="step() === 'confirm'"
+        ></div>
+        <div class="booking__step" [class.booking__step--active]="step() === 'confirm'">
+          <div class="booking__step-number">2</div>
+          <span class="booking__step-label">Confirmar</span>
+        </div>
+      </div>
 
       <!-- Error -->
-      @if (error()) {
+      @if (error(); as err) {
         <div class="booking__error">
-          <p>{{ error() }}</p>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <div>
+            <p class="booking__error-summary">{{ err.summary }}</p>
+            @if (err.details; as details) {
+              <ul class="booking__error-details">
+                @for (d of details; track $index) {
+                  <li>{{ d }}</li>
+                }
+              </ul>
+            }
+          </div>
         </div>
       }
 
-      <!-- Step: Passenger details -->
+      <!-- Step 1: Passenger details -->
       @if (step() === 'details') {
-        <form [formGroup]="bookingForm" (ngSubmit)="goToConfirm()" class="booking__form card">
-          <h2 class="booking__section-title">Dados do passageiro</h2>
+        <div class="booking__layout">
+          <!-- Form -->
+          <form
+            [formGroup]="bookingForm"
+            (ngSubmit)="goToConfirm()"
+            class="booking__form card animate-fade-in"
+          >
+            <h2 class="booking__section-title">Dados do passageiro</h2>
 
-          <!-- Name -->
-          <div class="form-group">
-            <label class="form-label" for="name">Nome completo</label>
-            <input
-              id="name"
-              type="text"
-              class="form-input"
-              formControlName="passengerName"
-              placeholder="Seu nome completo"
-            />
-            @if (
-              bookingForm.controls.passengerName.touched &&
-              bookingForm.controls.passengerName.invalid
-            ) {
-              <span class="form-error">
-                @if (bookingForm.controls.passengerName.errors?.['required']) {
-                  Nome é obrigatório.
-                }
-                @if (bookingForm.controls.passengerName.errors?.['minlength']) {
-                  Mínimo 3 caracteres.
-                }
-              </span>
-            }
-          </div>
-
-          <!-- Email -->
-          <div class="form-group">
-            <label class="form-label" for="email">E-mail</label>
-            <input
-              id="email"
-              type="email"
-              class="form-input"
-              formControlName="passengerEmail"
-              placeholder="seu@email.com"
-            />
-            @if (
-              bookingForm.controls.passengerEmail.touched &&
-              bookingForm.controls.passengerEmail.invalid
-            ) {
-              <span class="form-error">
-                @if (bookingForm.controls.passengerEmail.errors?.['required']) {
-                  E-mail é obrigatório.
-                }
-                @if (bookingForm.controls.passengerEmail.errors?.['email']) {
-                  E-mail inválido.
-                }
-              </span>
-            }
-          </div>
-
-          <!-- Phone -->
-          <div class="form-group">
-            <label class="form-label" for="phone">Telefone</label>
-            <input
-              id="phone"
-              type="tel"
-              class="form-input"
-              formControlName="passengerPhone"
-              placeholder="(11) 99999-9999"
-            />
-            @if (
-              bookingForm.controls.passengerPhone.touched &&
-              bookingForm.controls.passengerPhone.invalid
-            ) {
-              <span class="form-error">Telefone é obrigatório (mín. 10 dígitos).</span>
-            }
-          </div>
-
-          <!-- Document -->
-          <div class="form-group">
-            <label class="form-label" for="doc">CPF / Documento</label>
-            <input
-              id="doc"
-              type="text"
-              class="form-input"
-              formControlName="passengerDocument"
-              placeholder="000.000.000-00"
-            />
-            @if (
-              bookingForm.controls.passengerDocument.touched &&
-              bookingForm.controls.passengerDocument.invalid
-            ) {
-              <span class="form-error">Documento é obrigatório (mín. 11 dígitos).</span>
-            }
-          </div>
-
-          <!-- Seat selection -->
-          <div class="booking__seat-section">
-            <h3 class="booking__section-subtitle">Escolha seu assento</h3>
-            <div class="booking__seats-grid">
-              @for (seat of seatNumbers; track seat) {
-                <button
-                  type="button"
-                  class="booking__seat"
-                  [class.booking__seat--selected]="selectedSeat() === seat"
-                  (click)="selectSeat(seat)"
-                >
-                  {{ seat }}
-                </button>
+            <!-- Name -->
+            <div class="form-group">
+              <label class="form-label" for="name">Nome completo</label>
+              <input
+                id="name"
+                type="text"
+                class="form-input"
+                formControlName="passengerName"
+                placeholder="Seu nome completo"
+              />
+              @if (
+                bookingForm.controls.passengerName.touched &&
+                bookingForm.controls.passengerName.invalid
+              ) {
+                <span class="form-error">
+                  @if (bookingForm.controls.passengerName.errors?.['required']) {
+                    Nome é obrigatório.
+                  }
+                  @if (bookingForm.controls.passengerName.errors?.['minlength']) {
+                    Mínimo 3 caracteres.
+                  }
+                </span>
               }
             </div>
-            @if (selectedSeat()) {
-              <p class="booking__seat-info">
-                Assento selecionado: <strong>{{ selectedSeat() }}</strong>
-              </p>
-            }
-          </div>
 
-          <!-- Payment method -->
-          <div class="form-group">
-            <label class="form-label">Forma de pagamento</label>
-            <div class="booking__payment-options">
-              <label
-                class="booking__payment-option"
-                [class.booking__payment-option--active]="
-                  bookingForm.controls.paymentMethod.value === 'pix'
-                "
-              >
-                <input type="radio" formControlName="paymentMethod" value="pix" class="sr-only" />
-                <span class="booking__payment-icon">💠</span>
-                Pix
-              </label>
-              <label
-                class="booking__payment-option"
-                [class.booking__payment-option--active]="
-                  bookingForm.controls.paymentMethod.value === 'credit'
-                "
-              >
+            <div class="booking__form-row">
+              <!-- Email -->
+              <div class="form-group booking__form-col">
+                <label class="form-label" for="email">E-mail</label>
                 <input
-                  type="radio"
-                  formControlName="paymentMethod"
-                  value="credit"
-                  class="sr-only"
+                  id="email"
+                  type="email"
+                  class="form-input"
+                  formControlName="passengerEmail"
+                  placeholder="seu@email.com"
                 />
-                <span class="booking__payment-icon">💳</span>
-                Cartão
-              </label>
-              <label
-                class="booking__payment-option"
-                [class.booking__payment-option--active]="
-                  bookingForm.controls.paymentMethod.value === 'boleto'
-                "
-              >
+                @if (
+                  bookingForm.controls.passengerEmail.touched &&
+                  bookingForm.controls.passengerEmail.invalid
+                ) {
+                  <span class="form-error">
+                    @if (bookingForm.controls.passengerEmail.errors?.['required']) {
+                      E-mail é obrigatório.
+                    }
+                    @if (bookingForm.controls.passengerEmail.errors?.['email']) {
+                      E-mail inválido.
+                    }
+                  </span>
+                }
+              </div>
+
+              <!-- Phone -->
+              <div class="form-group booking__form-col">
+                <label class="form-label" for="phone">Telefone</label>
                 <input
-                  type="radio"
-                  formControlName="paymentMethod"
-                  value="boleto"
-                  class="sr-only"
+                  id="phone"
+                  type="tel"
+                  class="form-input"
+                  formControlName="passengerPhone"
+                  placeholder="(11) 99999-9999"
                 />
-                <span class="booking__payment-icon">📄</span>
-                Boleto
-              </label>
+                @if (
+                  bookingForm.controls.passengerPhone.touched &&
+                  bookingForm.controls.passengerPhone.invalid
+                ) {
+                  <span class="form-error">Telefone é obrigatório (mín. 10 dígitos).</span>
+                }
+              </div>
             </div>
-          </div>
 
-          <button type="submit" class="btn btn-accent btn-lg w-full">Revisar reserva</button>
-        </form>
+            <!-- Document -->
+            <div class="form-group">
+              <label class="form-label" for="doc">CPF / Documento</label>
+              <input
+                id="doc"
+                type="text"
+                class="form-input"
+                formControlName="passengerDocument"
+                placeholder="000.000.000-00"
+              />
+              @if (
+                bookingForm.controls.passengerDocument.touched &&
+                bookingForm.controls.passengerDocument.invalid
+              ) {
+                <span class="form-error">Documento é obrigatório (mín. 11 dígitos).</span>
+              }
+            </div>
+
+            <!-- Seat selection -->
+            <div class="booking__seat-section">
+              <h3 class="booking__section-subtitle">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M8 3v18M16 3v18" />
+                </svg>
+                Escolha seu assento
+              </h3>
+              <!-- Bus layout visualization -->
+              <div class="booking__bus">
+                <div class="booking__bus-front">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-text-light)"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  <span>Motorista</span>
+                </div>
+                <div class="booking__bus-aisle"></div>
+                <div class="booking__seats-grid">
+                  @for (seat of seatNumbers; track seat) {
+                    <button
+                      type="button"
+                      class="booking__seat"
+                      [class.booking__seat--selected]="selectedSeat() === seat"
+                      [class.booking__seat--window]="seat % 4 === 1 || seat % 4 === 0"
+                      (click)="selectSeat(seat)"
+                      [attr.aria-label]="'Assento ' + seat"
+                    >
+                      {{ seat }}
+                    </button>
+                  }
+                </div>
+              </div>
+              @if (selectedSeat()) {
+                <p class="booking__seat-info">
+                  Assento selecionado: <strong>Nº {{ selectedSeat() }}</strong>
+                </p>
+              }
+            </div>
+
+            <!-- Payment -->
+            <div class="form-group">
+              <label class="form-label">Forma de pagamento</label>
+              <div class="booking__payment-options">
+                <label
+                  class="booking__payment-option"
+                  [class.booking__payment-option--active]="
+                    bookingForm.controls.paymentMethod.value === 'pix'
+                  "
+                >
+                  <input type="radio" formControlName="paymentMethod" value="pix" class="sr-only" />
+                  <span class="booking__payment-icon">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="2" y="3" width="20" height="14" rx="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </span>
+                  <span class="booking__payment-name">Pix</span>
+                  <span class="booking__payment-desc">Aprovação instantânea</span>
+                </label>
+                <label
+                  class="booking__payment-option"
+                  [class.booking__payment-option--active]="
+                    bookingForm.controls.paymentMethod.value === 'credit'
+                  "
+                >
+                  <input
+                    type="radio"
+                    formControlName="paymentMethod"
+                    value="credit"
+                    class="sr-only"
+                  />
+                  <span class="booking__payment-icon">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg>
+                  </span>
+                  <span class="booking__payment-name">Cartão</span>
+                  <span class="booking__payment-desc">Até 12x sem juros</span>
+                </label>
+                <label
+                  class="booking__payment-option"
+                  [class.booking__payment-option--active]="
+                    bookingForm.controls.paymentMethod.value === 'boleto'
+                  "
+                >
+                  <input
+                    type="radio"
+                    formControlName="paymentMethod"
+                    value="boleto"
+                    class="sr-only"
+                  />
+                  <span class="booking__payment-icon">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                  </span>
+                  <span class="booking__payment-name">Boleto</span>
+                  <span class="booking__payment-desc">Vence em 3 dias</span>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent btn-lg w-full">
+              Continuar para revisão
+            </button>
+          </form>
+
+          <!-- Sidebar summary -->
+          @if (routeData()) {
+            <aside class="booking__sidebar animate-fade-in">
+              <div class="booking__sidebar-card card">
+                <h3 class="booking__sidebar-title">Resumo da compra</h3>
+                <div class="booking__sidebar-route">
+                  <strong>{{ routeData()!.origin }} → {{ routeData()!.destination }}</strong>
+                  <span>{{ routeData()!.departureTime }} · {{ routeData()!.duration }}</span>
+                </div>
+                <div class="divider"></div>
+                <div class="booking__sidebar-item">
+                  <span>Passagem</span>
+                  <span>{{ formatPrice(routeData()!.price) }}</span>
+                </div>
+                <div class="booking__sidebar-item">
+                  <span>Taxa de serviço</span>
+                  <span class="text-success">Grátis</span>
+                </div>
+                <div class="divider"></div>
+                <div class="booking__sidebar-total">
+                  <span>Total</span>
+                  <strong>{{ formatPrice(routeData()!.price) }}</strong>
+                </div>
+              </div>
+            </aside>
+          }
+        </div>
       }
 
-      <!-- Step: Confirmation -->
+      <!-- Step 2: Confirmation -->
       @if (step() === 'confirm') {
-        <div class="booking__confirm card">
-          <h2 class="booking__section-title">Revisar e confirmar</h2>
-
-          <div class="booking__confirm-section">
-            <h4>Passageiro</h4>
-            <p>{{ bookingForm.controls.passengerName.value }}</p>
-            <p class="text-sm text-secondary">{{ bookingForm.controls.passengerEmail.value }}</p>
-            <p class="text-sm text-secondary">{{ bookingForm.controls.passengerPhone.value }}</p>
-          </div>
-
-          <div class="booking__confirm-section">
-            <h4>Assento</h4>
-            <p>
-              <strong>Nº {{ selectedSeat() }}</strong>
+        <div class="booking__layout">
+          <div class="booking__confirm card animate-fade-in">
+            <h2 class="booking__section-title">Revisar e confirmar</h2>
+            <p class="booking__confirm-subtitle">
+              Verifique os dados antes de finalizar sua reserva.
             </p>
-          </div>
 
-          <div class="booking__confirm-section">
-            <h4>Pagamento</h4>
-            <p>
-              @if (bookingForm.controls.paymentMethod.value === 'pix') {
-                Pix
-              } @else if (bookingForm.controls.paymentMethod.value === 'credit') {
-                Cartão de crédito
-              } @else {
-                Boleto bancário
-              }
-            </p>
-          </div>
+            <div class="booking__confirm-grid">
+              <div class="booking__confirm-section">
+                <h4>Passageiro</h4>
+                <p class="booking__confirm-value">{{ bookingForm.controls.passengerName.value }}</p>
+                <p class="booking__confirm-detail">
+                  {{ bookingForm.controls.passengerEmail.value }}
+                </p>
+                <p class="booking__confirm-detail">
+                  {{ bookingForm.controls.passengerPhone.value }}
+                </p>
+                <p class="booking__confirm-detail">
+                  Doc: {{ bookingForm.controls.passengerDocument.value }}
+                </p>
+              </div>
 
-          @if (routeData()) {
-            <div class="booking__confirm-total">
-              <span>Total</span>
-              <strong>{{ formatPrice(routeData()!.price) }}</strong>
+              <div class="booking__confirm-section">
+                <h4>Viagem</h4>
+                @if (routeData()) {
+                  <p class="booking__confirm-value">
+                    {{ routeData()!.origin }} → {{ routeData()!.destination }}
+                  </p>
+                  <p class="booking__confirm-detail">
+                    {{ routeData()!.company }} · {{ routeData()!.busType }}
+                  </p>
+                  <p class="booking__confirm-detail">
+                    {{ routeData()!.departureTime }} · {{ routeData()!.duration }}
+                  </p>
+                }
+              </div>
+
+              <div class="booking__confirm-section">
+                <h4>Assento</h4>
+                <p class="booking__confirm-value">Nº {{ selectedSeat() }}</p>
+              </div>
+
+              <div class="booking__confirm-section">
+                <h4>Pagamento</h4>
+                <p class="booking__confirm-value">{{ paymentLabel }}</p>
+              </div>
             </div>
-          }
 
-          <div class="booking__confirm-actions">
-            <button type="button" class="btn btn-outline" (click)="step.set('details')">
-              Voltar
-            </button>
-            <button
-              type="button"
-              class="btn btn-accent btn-lg flex-1"
-              (click)="submitBooking()"
-              [disabled]="loading()"
-            >
-              @if (loading()) {
-                <span class="spinner"></span>
-                Confirmando…
-              } @else {
-                Confirmar pagamento
-              }
-            </button>
+            @if (routeData()) {
+              <div class="booking__confirm-total">
+                <span>Total a pagar</span>
+                <strong>{{ formatPrice(routeData()!.price) }}</strong>
+              </div>
+            }
+
+            <div class="booking__confirm-actions">
+              <button type="button" class="btn btn-outline btn-lg" (click)="step.set('details')">
+                Editar dados
+              </button>
+              <button
+                type="button"
+                class="btn btn-accent btn-lg flex-1"
+                (click)="submitBooking()"
+                [disabled]="loading()"
+              >
+                @if (loading()) {
+                  <span class="spinner spinner--light"></span>
+                  Confirmando…
+                } @else {
+                  Finalizar reserva
+                }
+              </button>
+            </div>
           </div>
+
+          <!-- Sidebar summary -->
+          @if (routeData()) {
+            <aside class="booking__sidebar">
+              <div class="booking__sidebar-card card">
+                <h3 class="booking__sidebar-title">Resumo da compra</h3>
+                <div class="booking__sidebar-route">
+                  <strong>{{ routeData()!.origin }} → {{ routeData()!.destination }}</strong>
+                  <span>{{ routeData()!.departureTime }} · {{ routeData()!.duration }}</span>
+                </div>
+                <div class="divider"></div>
+                <div class="booking__sidebar-item">
+                  <span>Passagem</span>
+                  <span>{{ formatPrice(routeData()!.price) }}</span>
+                </div>
+                <div class="booking__sidebar-item">
+                  <span>Taxa de serviço</span>
+                  <span class="text-success">Grátis</span>
+                </div>
+                <div class="divider"></div>
+                <div class="booking__sidebar-total">
+                  <span>Total</span>
+                  <strong>{{ formatPrice(routeData()!.price) }}</strong>
+                </div>
+              </div>
+            </aside>
+          }
         </div>
       }
     }

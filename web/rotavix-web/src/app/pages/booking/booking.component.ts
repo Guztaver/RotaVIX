@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { type BookingRequest, RouteService } from '../../services/route.service'
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe],
   templateUrl: './booking.component.html',
   styleUrl: './booking.component.scss',
 })
@@ -38,8 +39,6 @@ export class BookingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-
-    // If we already have route data from the listing, use it
     const existing = this.routeService.selectedRoute();
     if (existing && existing.id === id) {
       this.maxSeats.set(existing.availableSeats);
@@ -86,7 +85,7 @@ export class BookingComponent implements OnInit, OnDestroy {
     this.routeService.createBooking(booking).subscribe({
       next: (result) => {
         if (result) {
-          this.step.set('details'); // mark it as done via bookingResult signal
+          this.step.set('details');
         }
       },
     });
@@ -96,8 +95,22 @@ export class BookingComponent implements OnInit, OnDestroy {
     return `R$ ${price.toFixed(2).replace('.', ',')}`;
   }
 
-  /** Build an array of seat numbers available */
   get seatNumbers(): number[] {
     return Array.from({ length: this.maxSeats() }, (_, i) => i + 1);
+  }
+
+  /** Get payment method display name */
+  get paymentLabel(): string {
+    const method = this.bookingForm.controls.paymentMethod.value;
+    switch (method) {
+      case 'pix':
+        return 'Pix';
+      case 'credit':
+        return 'Cartão de crédito';
+      case 'boleto':
+        return 'Boleto bancário';
+      default:
+        return method;
+    }
   }
 }
