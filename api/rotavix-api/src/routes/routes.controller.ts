@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { SearchRoutesDto } from './dto/search-routes.dto';
 import { RoutesService } from './routes.service';
@@ -20,7 +28,11 @@ export class RoutesController {
 
   @Get('routes/search')
   search(@Query() query: SearchRoutesDto) {
-    return this.routesService.search(query.origin, query.destination, query.date);
+    return this.routesService.search(
+      query.origin,
+      query.destination,
+      query.date,
+    );
   }
 
   @Get('routes/:id')
@@ -31,5 +43,13 @@ export class RoutesController {
   @Post('bookings')
   createBooking(@Body() createBookingDto: CreateBookingDto) {
     return this.routesService.createBooking(createBookingDto);
+  }
+
+  @Get('bookings')
+  getBookings(@Query('username') username?: string) {
+    if (username) {
+      return this.routesService.getBookingsByUsername(username);
+    }
+    return this.routesService.getBookings();
   }
 }

@@ -1,0 +1,19 @@
+@if (!auth.consentGranted()) {
+  <div class="cookie-banner animate-fade-in-up">
+    <div class="cookie-banner__inner container">
+      <div class="cookie-banner__text">
+        <h3>🍪 Este site usa cookies</h3>
+        <p>
+          Utilizamos cookies essenciais para salvar seu nome de usuário e melhorar sua experiência.
+          Nenhum dado pessoal é compartilhado com terceiros.
+          Ao clicar em <strong>"Aceitar"</strong>, você concorda com o uso de cookies
+          conforme nossa política de privacidade (LGPD).
+        </p>
+      </div>
+      <div class="cookie-banner__actions">
+        <button class="btn btn-outline btn-sm" (click)="reject()">Recusar</button>
+        <button class="btn btn-accent btn-sm" (click)="accept()">Aceitar</button>
+      </div>
+    </div>
+  </div>
+}

@@ -37,6 +37,7 @@ export interface BookingRequest {
   passengerDocument: string;
   seatNumber: number;
   paymentMethod?: string;
+  username?: string;
 }
 
 export interface BookingResponse {
@@ -225,6 +226,16 @@ export class RouteService {
       }),
       finalize(() => this.loading.set(false)),
     );
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Get bookings by username                                           */
+  /* ------------------------------------------------------------------ */
+
+  getBookingsByUsername(username: string): Observable<BookingResponse[]> {
+    return this.http.get<BookingResponse[]>(`${this.apiBase}/bookings`, {
+      params: new HttpParams().set('username', username),
+    });
   }
 
   /* ------------------------------------------------------------------ */

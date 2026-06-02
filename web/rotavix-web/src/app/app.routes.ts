@@ -18,6 +18,11 @@ export const routes: Routes = [
     title: 'RotaVIX — Reserva',
   },
   {
+    path: 'reservas',
+    loadComponent: () => import('./pages/bookings/bookings.component').then((m) => m.BookingsPage),
+    title: 'RotaVIX — Minhas reservas',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

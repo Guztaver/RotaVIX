@@ -3,6 +3,7 @@ import { Component, inject, type OnDestroy, type OnInit, signal } from '@angular
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { type BookingRequest, RouteService } from '../../services/route.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { type BookingRequest, RouteService } from '../../services/route.service'
 })
 export class BookingComponent implements OnInit, OnDestroy {
   private readonly routeService = inject(RouteService);
+  private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -75,11 +77,13 @@ export class BookingComponent implements OnInit, OnDestroy {
     }
 
     const formValue = this.bookingForm.getRawValue();
+    const username = this.auth.username();
     const booking: BookingRequest = {
       routeId: this.routeData()!.id,
       passengerName: formValue.passengerName,
       passengerDocument: formValue.passengerDocument,
       seatNumber: formValue.seatNumber,
+      username: username ?? undefined,
     };
 
     this.routeService.createBooking(booking).subscribe({

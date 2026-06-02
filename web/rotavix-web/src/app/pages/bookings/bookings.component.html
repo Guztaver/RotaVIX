@@ -1,0 +1,82 @@
+<section class="bookings">
+  <div class="container">
+    <div class="bookings__header">
+      <h1 class="bookings__title">Minhas reservas</h1>
+    </div>
+
+    <!-- Not logged in -->
+    @if (!auth.username()) {
+      <div class="bookings__empty card">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <h2>Você não está identificado</h2>
+        <p>Clique em <strong>"Entrar"</strong> no menu superior para ver suas reservas.</p>
+      </div>
+    }
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="bookings__loading stagger">
+        @for (i of [1, 2]; track i) {
+          <div class="bookings__skeleton card">
+            <div class="skeleton" style="height: 20px; width: 45%; margin-bottom: 12px"></div>
+            <div class="skeleton" style="height: 14px; width: 65%; margin-bottom: 12px"></div>
+            <div class="skeleton" style="height: 14px; width: 30%"></div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="bookings__error">
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Booking cards -->
+    @if (!loading() && bookings().length > 0) {
+      <div class="bookings__list stagger">
+        @for (b of bookings(); track b.id) {
+          <div class="bookings__card card">
+            <div class="bookings__card-top">
+              <div>
+                <span class="bookings__id">Reserva #{{ b.id }}</span>
+                <span class="bookings__date">{{ b.bookingDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <span class="bookings__seat badge badge-primary">Assento {{ b.seatNumber }}</span>
+            </div>
+            <div class="bookings__card-body">
+              <div class="bookings__field">
+                <span class="bookings__label">Passageiro</span>
+                <strong>{{ b.passengerName }}</strong>
+              </div>
+              <div class="bookings__field">
+                <span class="bookings__label">Documento</span>
+                <strong>{{ b.passengerDocument }}</strong>
+              </div>
+            </div>
+            <div class="bookings__card-footer">
+              <span class="bookings__created">Criada em {{ b.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!loading() && !error() && bookings().length === 0 && auth.username()) {
+      <div class="bookings__empty card">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        <h2>Nenhuma reserva encontrada</h2>
+        <p>Suas reservas aparecerão aqui após a compra.</p>
+        <a routerLink="/" class="btn btn-primary btn-sm">Buscar passagens</a>
+      </div>
+    }
+  </div>
+</section>

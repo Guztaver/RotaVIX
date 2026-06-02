@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiBase: 'http://localhost:3000/api',
+  // Proxy (proxy.conf.json) forwards /api → http://localhost:3000
+  apiBase: '/api',
 };
