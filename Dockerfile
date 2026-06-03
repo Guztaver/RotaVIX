@@ -6,10 +6,10 @@
 FROM node:lts-alpine AS web-builder
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable
 
-COPY web/rotavix-web/package.json web/rotavix-web/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild
+COPY web/rotavix-web/package.json web/rotavix-web/pnpm-lock.yaml web/rotavix-web/.npmrc ./
+RUN pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild esbuild @parcel/watcher lmdb msgpackr-extract
 
 COPY web/rotavix-web/angular.json web/rotavix-web/tsconfig*.json ./
 COPY web/rotavix-web/src/ src/
