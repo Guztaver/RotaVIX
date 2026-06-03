@@ -513,8 +513,9 @@
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--color-text-light);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-2);
+    font-weight: var(--font-weight-semibold);
   }
 }
 

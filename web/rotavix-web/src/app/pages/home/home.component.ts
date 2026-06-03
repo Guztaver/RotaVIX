@@ -53,6 +53,8 @@ export class HomeComponent {
     { city: 'Florianópolis', state: 'SC' },
   ];
 
+  private nextPickField: 'origin' | 'destination' = 'origin';
+
   async onSubmit(): Promise<void> {
     if (this.searchForm.invalid) {
       this.searchForm.markAllAsTouched();
@@ -71,6 +73,11 @@ export class HomeComponent {
               date: params.date,
             },
           });
+        } else {
+          this.routeService.error.set({
+            summary: 'Nenhuma rota encontrada.',
+            details: ['Tente outras cidades ou uma data diferente.'],
+          });
         }
       },
     });
@@ -85,13 +92,27 @@ export class HomeComponent {
     });
   }
 
+  quickPickCity(city: string): void {
+    if (this.nextPickField === 'origin') {
+      this.searchForm.controls.origin.setValue(city);
+      this.searchForm.controls.origin.markAsTouched();
+      this.nextPickField = 'destination';
+    } else {
+      this.searchForm.controls.destination.setValue(city);
+      this.searchForm.controls.destination.markAsTouched();
+      this.nextPickField = 'origin';
+    }
+  }
+
   quickPickOrigin(city: string): void {
     this.searchForm.controls.origin.setValue(city);
     this.searchForm.controls.origin.markAsTouched();
+    this.nextPickField = 'destination';
   }
 
   quickPickDestination(city: string): void {
     this.searchForm.controls.destination.setValue(city);
     this.searchForm.controls.destination.markAsTouched();
+    this.nextPickField = 'origin';
   }
 }

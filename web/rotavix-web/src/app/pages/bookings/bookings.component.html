@@ -6,13 +6,13 @@
 
     <!-- Not logged in -->
     @if (!auth.username()) {
-      <div class="bookings__empty card">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
+      <div class="bookings__notice card">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
-        <h2>Você não está identificado</h2>
-        <p>Clique em <strong>"Entrar"</strong> no menu superior para ver suas reservas.</p>
+        <span>Exemplo de reservas. <strong>Entre</strong> para ver suas reservas reais.</span>
       </div>
     }
 
@@ -66,7 +66,7 @@
       </div>
     }
 
-    <!-- Empty -->
+    <!-- Empty (only for logged-in users with no real bookings) -->
     @if (!loading() && !error() && bookings().length === 0 && auth.username()) {
       <div class="bookings__empty card">
         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
