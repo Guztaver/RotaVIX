@@ -12,8 +12,8 @@ import { RouteService } from '../../services/route.service';
 
 /** Validator: date must be today or in the future */
 function notInPast(control: AbstractControl): ValidationErrors | null {
-  if (!control.value) return null;
-  const selected = new Date(control.value + 'T00:00:00');
+  if (!control.value) { return null; }
+  const selected = new Date(`${control.value}T00:00:00`);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return selected < today ? { past: true } : null;

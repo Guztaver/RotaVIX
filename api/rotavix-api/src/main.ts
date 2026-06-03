@@ -1,9 +1,9 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import type { Response } from 'express';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { AppModule } from './app.module';
 import { SpaFallbackFilter } from './spa-fallback.filter';
 

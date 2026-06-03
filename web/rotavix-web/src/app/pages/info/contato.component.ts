@@ -60,7 +60,7 @@ export class ContatoComponent {
   });
 
   submit(): void {
-    if (this.contactForm.invalid) return;
+    if (this.contactForm.invalid) { return; }
     // Simulate sending (no actual backend for contact form)
     this.sent.set(true);
   }
