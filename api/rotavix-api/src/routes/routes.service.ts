@@ -1,5 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { CreateBookingDto } from './dto/create-booking.dto';
+
+const DATA_DIR = join(process.cwd(), 'data');
+const ROUTES_FILE = join(DATA_DIR, 'routes.json');
+const BOOKINGS_FILE = join(DATA_DIR, 'bookings.json');
 
 export interface BusRoute {
   id: number;
@@ -26,209 +32,35 @@ export interface Booking {
   username?: string;
 }
 
-const mockRoutes: BusRoute[] = [
-  {
-    id: 1,
-    origin: 'Vitória',
-    destination: 'São Paulo',
-    company: 'Viação RotaVIX',
-    departureTime: '08:00',
-    arrivalTime: '18:00',
-    duration: '10h',
-    price: 189.9,
-    availableSeats: 42,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 2,
-    origin: 'Vitória',
-    destination: 'São Paulo',
-    company: 'Expresso VIX',
-    departureTime: '21:00',
-    arrivalTime: '06:00',
-    duration: '9h',
-    price: 159.9,
-    availableSeats: 38,
-    busType: 'Executivo',
-    date: '2026-06-15',
-  },
-  {
-    id: 3,
-    origin: 'Vitória',
-    destination: 'Rio de Janeiro',
-    company: 'Viação RotaVIX',
-    departureTime: '07:30',
-    arrivalTime: '15:00',
-    duration: '7h30m',
-    price: 129.9,
-    availableSeats: 36,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 4,
-    origin: 'Vitória',
-    destination: 'Rio de Janeiro',
-    company: 'Expresso VIX',
-    departureTime: '14:00',
-    arrivalTime: '21:30',
-    duration: '7h30m',
-    price: 109.9,
-    availableSeats: 44,
-    busType: 'Convencional',
-    date: '2026-06-15',
-  },
-  {
-    id: 5,
-    origin: 'Vitória',
-    destination: 'Belo Horizonte',
-    company: 'Viação RotaVIX',
-    departureTime: '09:00',
-    arrivalTime: '17:00',
-    duration: '8h',
-    price: 149.9,
-    availableSeats: 40,
-    busType: 'Executivo',
-    date: '2026-06-15',
-  },
-  {
-    id: 6,
-    origin: 'Vitória',
-    destination: 'Belo Horizonte',
-    company: 'Expresso VIX',
-    departureTime: '22:30',
-    arrivalTime: '06:30',
-    duration: '8h',
-    price: 139.9,
-    availableSeats: 35,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 7,
-    origin: 'Vitória',
-    destination: 'Salvador',
-    company: 'Viação RotaVIX',
-    departureTime: '18:00',
-    arrivalTime: '08:00',
-    duration: '14h',
-    price: 249.9,
-    availableSeats: 30,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 8,
-    origin: 'Vitória',
-    destination: 'Brasília',
-    company: 'Expresso VIX',
-    departureTime: '16:00',
-    arrivalTime: '08:00',
-    duration: '16h',
-    price: 279.9,
-    availableSeats: 28,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 9,
-    origin: 'Vitória',
-    destination: 'São Paulo',
-    company: 'Viação RotaVIX',
-    departureTime: '08:00',
-    arrivalTime: '18:00',
-    duration: '10h',
-    price: 199.9,
-    availableSeats: 45,
-    busType: 'Leito',
-    date: '2026-06-16',
-  },
-  {
-    id: 10,
-    origin: 'Vitória',
-    destination: 'Rio de Janeiro',
-    company: 'Viação RotaVIX',
-    departureTime: '07:30',
-    arrivalTime: '15:00',
-    duration: '7h30m',
-    price: 134.9,
-    availableSeats: 25,
-    busType: 'Executivo',
-    date: '2026-06-16',
-  },
-  {
-    id: 11,
-    origin: 'Vitória',
-    destination: 'Belo Horizonte',
-    company: 'Expresso VIX',
-    departureTime: '23:00',
-    arrivalTime: '07:00',
-    duration: '8h',
-    price: 144.9,
-    availableSeats: 50,
-    busType: 'Convencional',
-    date: '2026-06-16',
-  },
-  {
-    id: 12,
-    origin: 'Vitória',
-    destination: 'Salvador',
-    company: 'Expresso VIX',
-    departureTime: '20:00',
-    arrivalTime: '10:00',
-    duration: '14h',
-    price: 229.9,
-    availableSeats: 32,
-    busType: 'Executivo',
-    date: '2026-06-16',
-  },
-  {
-    id: 13,
-    origin: 'São Paulo',
-    destination: 'Vitória',
-    company: 'Viação RotaVIX',
-    departureTime: '20:00',
-    arrivalTime: '06:00',
-    duration: '10h',
-    price: 189.9,
-    availableSeats: 40,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-  {
-    id: 14,
-    origin: 'Rio de Janeiro',
-    destination: 'Vitória',
-    company: 'Expresso VIX',
-    departureTime: '08:00',
-    arrivalTime: '15:30',
-    duration: '7h30m',
-    price: 129.9,
-    availableSeats: 33,
-    busType: 'Executivo',
-    date: '2026-06-15',
-  },
-  {
-    id: 15,
-    origin: 'Belo Horizonte',
-    destination: 'Vitória',
-    company: 'Viação RotaVIX',
-    departureTime: '22:00',
-    arrivalTime: '06:00',
-    duration: '8h',
-    price: 149.9,
-    availableSeats: 37,
-    busType: 'Leito',
-    date: '2026-06-15',
-  },
-];
+function loadJson<T>(filePath: string): T {
+  const raw = readFileSync(filePath, 'utf-8');
+  return JSON.parse(raw) as T;
+}
+
+function saveJson<T>(filePath: string, data: T): void {
+  writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+}
 
 @Injectable()
 export class RoutesService {
-  private routes: BusRoute[] = [...mockRoutes];
-  private bookings: Booking[] = [];
-  private nextBookingId = 1;
+  private routes: BusRoute[];
+  private bookings: Booking[];
+  private nextBookingId: number;
+
+  constructor() {
+    this.routes = loadJson<BusRoute[]>(ROUTES_FILE);
+    this.bookings = loadJson<Booking[]>(BOOKINGS_FILE);
+    this.nextBookingId =
+      this.bookings.length > 0 ? Math.max(...this.bookings.map((b) => b.id)) + 1 : 1;
+  }
+
+  private saveRoutes(): void {
+    saveJson(ROUTES_FILE, this.routes);
+  }
+
+  private saveBookings(): void {
+    saveJson(BOOKINGS_FILE, this.bookings);
+  }
 
   findAll(): BusRoute[] {
     return this.routes;
@@ -276,6 +108,7 @@ export class RoutesService {
     }
 
     route.availableSeats -= 1;
+    this.saveRoutes();
 
     const booking: Booking = {
       id: this.nextBookingId++,
@@ -289,6 +122,7 @@ export class RoutesService {
     };
 
     this.bookings.push(booking);
+    this.saveBookings();
     return booking;
   }
 

@@ -42,6 +42,10 @@ COPY --from=api-builder /app/dist ./dist
 COPY --from=api-builder /app/node_modules ./node_modules
 COPY --from=api-builder /app/package*.json ./
 
+# Copy seed data
+COPY api/rotavix-api/data/ ./data/
+RUN mkdir -p /app/data && chown -R rotavix:rotavix /app/data
+
 # Copy Angular build (the NestJS server will serve these static files)
 COPY --from=web-builder /app/dist/rotavix-web/browser ./web-dist
 
