@@ -147,7 +147,14 @@
                   [min]="minDate"
                 />
                 @if (searchForm.controls.date.touched && searchForm.controls.date.invalid) {
-                  <span class="form-error">Selecione a data.</span>
+                  <span class="form-error">
+                    @if (searchForm.controls.date.errors?.['required']) {
+                      Selecione uma data.
+                    }
+                    @if (searchForm.controls.date.errors?.['past']) {
+                      A data não pode estar no passado.
+                    }
+                  </span>
                 }
               </div>
 

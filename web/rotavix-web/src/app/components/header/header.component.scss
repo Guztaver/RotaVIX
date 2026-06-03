@@ -97,6 +97,55 @@
   transform: scale(0.94);
 }
 
+/* --- Login trigger button --- */
+.header__login-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.header__login-btn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+/* --- Logged-in user pill --- */
+.header__user-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  padding-right: var(--space-1);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.header__logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--color-text-light);
+  transition: all var(--transition-fast);
+}
+
+.header__logout-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-error);
+}
+
 /* --- Responsive --- */
 @media (max-width: 640px) {
   .header__nav {

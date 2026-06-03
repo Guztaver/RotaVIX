@@ -1,12 +1,12 @@
 import { Location } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LoginComponent } from '../login/login.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, LoginComponent],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
@@ -14,7 +14,8 @@ export class HeaderComponent {
   readonly showBack = input(false);
   readonly refreshed = output<void>();
 
-  constructor(private readonly location: Location) {}
+  private readonly location = inject(Location);
+  readonly auth = inject(AuthService);
 
   goBack(): void {
     this.location.back();

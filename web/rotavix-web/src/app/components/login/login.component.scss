@@ -1,84 +1,44 @@
-.login {
-  display: flex;
-  align-items: center;
-}
-
-.login__trigger {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-}
-
-.login__trigger:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
-
-/* Logged-in user pill */
-.login__user {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  padding-right: var(--space-1);
-  background: var(--color-primary-soft);
-  border-radius: var(--radius-full);
-}
-
-.login__user-icon {
-  color: var(--color-primary);
-  display: flex;
-}
-
-.login__user-name {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
-}
-
-.login__logout-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  color: var(--color-text-light);
-  transition: all var(--transition-fast);
-}
-
-.login__logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--color-error);
-}
-
-/* Dialog overlay */
+/* Dialog overlay — rendered at app root, outside header stacking context */
 .login__overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   padding: var(--space-4);
 }
 
 .login__dialog {
+  position: relative;
   width: 100%;
   max-width: 400px;
-  padding: var(--space-6);
+  padding: var(--space-8) var(--space-6) var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.login__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-light);
+  transition: all var(--transition-fast);
+}
+
+.login__close:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .login__title {

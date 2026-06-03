@@ -1,4 +1,9 @@
-import { Catch, NotFoundException, type ExceptionFilter, type ArgumentsHost } from '@nestjs/common';
+import {
+  Catch,
+  NotFoundException,
+  type ExceptionFilter,
+  type ArgumentsHost,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { join } from 'node:path';
 
@@ -10,16 +15,21 @@ import { join } from 'node:path';
 export class SpaFallbackFilter implements ExceptionFilter {
   constructor(private readonly webDistPath: string) {}
 
-  catch(_exception: NotFoundException, host: ArgumentsHost) {
+  catch(exception: NotFoundException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
 
-    // API routes should get a proper JSON 404 — don't serve index.html
+    // API routes: return the actual exception message, not a generic "Not Found"
     if (req.path.startsWith('/api/')) {
-      return res.status(404).json({
-        statusCode: 404,
-        message: 'Not Found',
+      const response = exception.getResponse();
+      const message =
+        typeof response === 'object' && response !== null
+          ? ((response as Record<string, unknown>)['message'] ?? response)
+          : response;
+      return res.status(exception.getStatus()).json({
+        statusCode: exception.getStatus(),
+        message: message || 'Not Found',
       });
     }
 
@@ -27,13 +37,12 @@ export class SpaFallbackFilter implements ExceptionFilter {
     if (req.method === 'GET') {
       return res.sendFile(join(this.webDistPath, 'index.html'), (err) => {
         if (err) {
-          // If index.html doesn't exist, fall back to plain 404
           res.status(404).json({ statusCode: 404, message: 'Not Found' });
         }
       });
     }
 
-    // Non-GET requests (POST, PUT, etc.) to non-API paths → 404
+    // Non-GET requests to non-API paths → 404
     return res.status(404).json({ statusCode: 404, message: 'Not Found' });
   }
 }

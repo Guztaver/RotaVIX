@@ -108,7 +108,44 @@
         </svg>
         Minhas reservas
       </a>
-      <app-login />
+      <!-- Login trigger / user pill -->
+      @if (!auth.username()) {
+        <button class="header__login-btn" (click)="auth.openLogin()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Entrar
+        </button>
+      }
+      @if (auth.username(); as name) {
+        <div class="header__user-pill">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>{{ name }}</span>
+          <button class="header__logout-btn" (click)="auth.logout()" title="Sair">✕</button>
+        </div>
+      }
       <button class="header__icon-btn" (click)="refresh()" aria-label="Atualizar" title="Atualizar">
         <svg
           width="20"

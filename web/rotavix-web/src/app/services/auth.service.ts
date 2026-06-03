@@ -12,6 +12,12 @@ export class AuthService {
   /** Current logged-in username (null = not logged in) */
   readonly username = signal(this.getStoredUsername());
 
+  /** Whether the login dialog is open */
+  readonly loginOpen = signal(false);
+
+  /** Pre-filled value for the login input */
+  readonly loginInput = signal('');
+
   /* ------------------------------------------------------------------ */
   /* Cookie helpers                                                     */
   /* ------------------------------------------------------------------ */
@@ -51,6 +57,26 @@ export class AuthService {
     this.deleteCookie(USERNAME_KEY);
     this.consentGranted.set(false);
     this.username.set(null);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Login dialog                                                       */
+  /* ------------------------------------------------------------------ */
+
+  openLogin(): void {
+    this.loginInput.set(this.username() ?? '');
+    this.loginOpen.set(true);
+  }
+
+  closeLogin(): void {
+    this.loginOpen.set(false);
+  }
+
+  submitLogin(): void {
+    const ok = this.login(this.loginInput());
+    if (ok) {
+      this.closeLogin();
+    }
   }
 
   /* ------------------------------------------------------------------ */
