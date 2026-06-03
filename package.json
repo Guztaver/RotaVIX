@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "npm run build:web && npm run build:api",
-    "build:web": "cd web/rotavix-web && pnpm install --frozen-lockfile && pnpm exec ng build --configuration production",
+    "build:web": "cd web/rotavix-web && pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild esbuild @parcel/watcher lmdb msgpackr-extract && pnpm exec ng build --configuration production",
     "build:api": "cd api/rotavix-api && npm install --cache /tmp/npm-cache && npm run build",
     "start": "cd api/rotavix-api && node dist/main",
     "start:dev": "cd api/rotavix-api && npm run start:dev",
