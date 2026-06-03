@@ -21,6 +21,8 @@ RUN pnpm exec ng build --configuration production
 FROM node:lts-alpine AS api-builder
 WORKDIR /app
 
+RUN apk add --no-cache python3 make g++
+
 COPY api/rotavix-api/package*.json ./
 RUN npm ci
 
@@ -42,14 +44,13 @@ COPY --from=api-builder /app/dist ./dist
 COPY --from=api-builder /app/node_modules ./node_modules
 COPY --from=api-builder /app/package*.json ./
 
-# Copy seed data
-COPY api/rotavix-api/data/ ./data/
 RUN mkdir -p /app/data && chown -R rotavix:rotavix /app/data
 
 # Copy Angular build (the NestJS server will serve these static files)
 COPY --from=web-builder /app/dist/rotavix-web/browser ./web-dist
 
 ENV WEB_DIST_PATH=/app/web-dist
+ENV DATA_DIR=/app/data
 ENV NODE_ENV=production
 ENV PORT=3000
 

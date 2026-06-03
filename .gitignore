@@ -37,7 +37,10 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
-# ─── Cache ──────────────────────────────────────
+# ─── Database ────────────────────────────────────
+*.db
+*.db-wal
+*.db-shm
 .cache/
 .npm/
 .eslintcache

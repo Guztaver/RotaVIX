@@ -11,3 +11,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
+      - DATA_DIR=/app/data
+    volumes:
+      - rotavix-data:/app/data
+
+volumes:
+  rotavix-data:

@@ -1,11 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import type { CreateBookingDto } from './dto/create-booking.dto';
-
-const DATA_DIR = join(process.cwd(), 'data');
-const ROUTES_FILE = join(DATA_DIR, 'routes.json');
-const BOOKINGS_FILE = join(DATA_DIR, 'bookings.json');
+import { DatabaseService } from '../database/database.service';
 
 export interface BusRoute {
   id: number;
@@ -32,58 +27,41 @@ export interface Booking {
   username?: string;
 }
 
-function loadJson<T>(filePath: string): T {
-  const raw = readFileSync(filePath, 'utf-8');
-  return JSON.parse(raw) as T;
-}
-
-function saveJson<T>(filePath: string, data: T): void {
-  writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-}
-
 @Injectable()
 export class RoutesService {
-  private routes: BusRoute[];
-  private bookings: Booking[];
-  private nextBookingId: number;
-
-  constructor() {
-    this.routes = loadJson<BusRoute[]>(ROUTES_FILE);
-    this.bookings = loadJson<Booking[]>(BOOKINGS_FILE);
-    this.nextBookingId =
-      this.bookings.length > 0 ? Math.max(...this.bookings.map((b) => b.id)) + 1 : 1;
-  }
-
-  private saveRoutes(): void {
-    saveJson(ROUTES_FILE, this.routes);
-  }
-
-  private saveBookings(): void {
-    saveJson(BOOKINGS_FILE, this.bookings);
-  }
+  constructor(private readonly db: DatabaseService) {}
 
   findAll(): BusRoute[] {
-    return this.routes;
+    return this.db.db.prepare('SELECT * FROM routes ORDER BY date, id').all() as BusRoute[];
   }
 
   search(origin?: string, destination?: string, date?: string): BusRoute[] {
-    let results = this.routes;
+    const conditions: string[] = [];
+    const params: Record<string, string> = {};
 
     if (origin) {
-      results = results.filter((r) => r.origin.toLowerCase() === origin.toLowerCase());
+      conditions.push('LOWER(origin) = LOWER(@origin)');
+      params.origin = origin;
     }
     if (destination) {
-      results = results.filter((r) => r.destination.toLowerCase() === destination.toLowerCase());
+      conditions.push('LOWER(destination) = LOWER(@destination)');
+      params.destination = destination;
     }
     if (date) {
-      results = results.filter((r) => r.date === date);
+      conditions.push('date = @date');
+      params.date = date;
     }
 
-    return results;
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    return this.db.db
+      .prepare(`SELECT * FROM routes ${where} ORDER BY date, id`)
+      .all(params) as BusRoute[];
   }
 
   findOne(id: number): BusRoute {
-    const route = this.routes.find((r) => r.id === id);
+    const route = this.db.db
+      .prepare('SELECT * FROM routes WHERE id = ?')
+      .get(id) as BusRoute | undefined;
     if (!route) {
       throw new NotFoundException(`Rota com ID ${id} não encontrada`);
     }
@@ -91,50 +69,72 @@ export class RoutesService {
   }
 
   createBooking(dto: CreateBookingDto): Booking {
-    const route = this.routes.find((r) => r.id === dto.routeId);
-    if (!route) {
-      throw new NotFoundException(`Rota com ID ${dto.routeId} não encontrada`);
-    }
+    const route = this.findOne(dto.routeId);
 
     if (route.availableSeats <= 0) {
       throw new BadRequestException('Não há assentos disponíveis nesta rota');
     }
 
-    const seatTaken = this.bookings.some(
-      (b) => b.routeId === dto.routeId && b.seatNumber === dto.seatNumber,
-    );
-    if (seatTaken) {
-      throw new BadRequestException(`Assento ${dto.seatNumber} já está ocupado nesta rota`);
+    const existing = this.db.db
+      .prepare('SELECT id FROM bookings WHERE route_id = ? AND seat_number = ?')
+      .get(dto.routeId, dto.seatNumber) as { id: number } | undefined;
+
+    if (existing) {
+      throw new BadRequestException(
+        `Assento ${dto.seatNumber} já está ocupado nesta rota`,
+      );
     }
 
-    route.availableSeats -= 1;
-    this.saveRoutes();
+    const createdAt = new Date().toISOString();
 
-    const booking: Booking = {
-      id: this.nextBookingId++,
+    const doBooking = this.db.db.transaction(() => {
+      this.db.db
+        .prepare('UPDATE routes SET available_seats = available_seats - 1 WHERE id = ?')
+        .run(dto.routeId);
+
+      const result = this.db.db.prepare(`
+        INSERT INTO bookings (route_id, passenger_name, passenger_document, seat_number, booking_date, created_at, username)
+        VALUES (@routeId, @passengerName, @passengerDocument, @seatNumber, @bookingDate, @createdAt, @username)
+      `).run({
+        routeId: dto.routeId,
+        passengerName: dto.passengerName,
+        passengerDocument: dto.passengerDocument,
+        seatNumber: dto.seatNumber,
+        bookingDate: route.date,
+        createdAt,
+        username: dto.username ?? null,
+      });
+
+      return result.lastInsertRowid as number;
+    });
+
+    const bookingId = doBooking();
+
+    return {
+      id: bookingId,
       routeId: dto.routeId,
       passengerName: dto.passengerName,
       passengerDocument: dto.passengerDocument,
       seatNumber: dto.seatNumber,
       bookingDate: route.date,
-      createdAt: new Date().toISOString(),
+      createdAt,
       username: dto.username,
     };
-
-    this.bookings.push(booking);
-    this.saveBookings();
-    return booking;
   }
 
   getBookings(): Booking[] {
-    return this.bookings;
+    return this.db.db.prepare('SELECT * FROM bookings ORDER BY id DESC').all() as Booking[];
   }
 
   getBookingsByRoute(routeId: number): Booking[] {
-    return this.bookings.filter((b) => b.routeId === routeId);
+    return this.db.db
+      .prepare('SELECT * FROM bookings WHERE route_id = ? ORDER BY id')
+      .all(routeId) as Booking[];
   }
 
   getBookingsByUsername(username: string): Booking[] {
-    return this.bookings.filter((b) => b.username?.toLowerCase() === username.toLowerCase());
+    return this.db.db
+      .prepare('SELECT * FROM bookings WHERE LOWER(username) = LOWER(?) ORDER BY id DESC')
+      .all(username) as Booking[];
   }
 }
