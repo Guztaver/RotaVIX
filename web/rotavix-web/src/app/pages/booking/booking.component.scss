@@ -369,6 +369,20 @@
   transform: scale(1.08);
 }
 
+.booking__seat:disabled,
+.booking__seat--occupied {
+  background: var(--color-bg-secondary) !important;
+  border-color: var(--color-border-light) !important;
+  color: var(--color-text-light) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.booking__seat:disabled:hover,
+.booking__seat--occupied:hover {
+  transform: none;
+}
+
 .booking__seat-info {
   margin-top: var(--space-3);
   font-size: var(--font-size-sm);

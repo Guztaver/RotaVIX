@@ -27,13 +27,14 @@ export interface RouteResult {
   busType: string;
   date: string;
   amenities?: string[];
+  occupiedSeats?: number[];
 }
 
 export interface BookingRequest {
   routeId: number;
   passengerName: string;
-  passengerEmail?: string;
-  passengerPhone?: string;
+  passengerEmail: string;
+  passengerPhone: string;
   passengerDocument: string;
   seatNumber: number;
   paymentMethod?: string;

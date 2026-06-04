@@ -158,6 +158,8 @@ export class DatabaseService implements OnModuleInit {
         route_id INTEGER NOT NULL REFERENCES routes(id),
         passenger_name TEXT NOT NULL,
         passenger_document TEXT NOT NULL,
+        passenger_email TEXT NOT NULL DEFAULT '',
+        passenger_phone TEXT NOT NULL DEFAULT '',
         seat_number INTEGER NOT NULL,
         booking_date TEXT NOT NULL,
         created_at TEXT NOT NULL,
@@ -168,6 +170,14 @@ export class DatabaseService implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_bookings_route ON bookings(route_id);
       CREATE INDEX IF NOT EXISTS idx_bookings_username ON bookings(username);
     `);
+
+    // Safe migrations for existing DBs
+    try {
+      this.db.exec("ALTER TABLE bookings ADD COLUMN passenger_email TEXT NOT NULL DEFAULT '';");
+    } catch (e) { /* ignores if column already exists */ }
+    try {
+      this.db.exec("ALTER TABLE bookings ADD COLUMN passenger_phone TEXT NOT NULL DEFAULT '';");
+    } catch (e) { /* ignores if column already exists */ }
   }
 
   private seedIfEmpty(): void {

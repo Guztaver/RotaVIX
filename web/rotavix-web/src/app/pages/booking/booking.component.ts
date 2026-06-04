@@ -6,6 +6,16 @@ import type { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { type BookingRequest, RouteService } from '../../services/route.service';
 
+function isValidCpf(control: import('@angular/forms').AbstractControl): import('@angular/forms').ValidationErrors | null {
+  if (!control.value) return null;
+  let cpf = control.value.replace(/[^\d]+/g, '');
+  if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return { cpf: true };
+  const cpfNumbers = cpf.split('').map((el: string) => +el);
+  const rest = (count: number) =>
+    ((cpfNumbers.slice(0, count - 12).reduce((soma: number, el: number, index: number) => soma + el * (count - index), 0) * 10) % 11) % 10;
+  return rest(10) === cpfNumbers[9] && rest(11) === cpfNumbers[10] ? null : { cpf: true };
+}
+
 @Component({
   selector: 'app-booking',
   standalone: true,
@@ -28,7 +38,7 @@ export class BookingComponent implements OnInit, OnDestroy {
     passengerName: ['', [Validators.required, Validators.minLength(3)]],
     passengerEmail: ['', [Validators.required, Validators.email]],
     passengerPhone: ['', [Validators.required, Validators.minLength(10)]],
-    passengerDocument: ['', [Validators.required, Validators.minLength(11)]],
+    passengerDocument: ['', [Validators.required, isValidCpf]],
     seatNumber: [1, [Validators.required, Validators.min(1)]],
     paymentMethod: ['pix', Validators.required],
   });
@@ -59,8 +69,13 @@ export class BookingComponent implements OnInit, OnDestroy {
   }
 
   selectSeat(seat: number): void {
+    if (this.isSeatOccupied(seat)) return;
     this.selectedSeat.set(seat);
     this.bookingForm.controls.seatNumber.setValue(seat);
+  }
+
+  isSeatOccupied(seat: number): boolean {
+    return this.routeData()?.occupiedSeats?.includes(seat) ?? false;
   }
 
   goToConfirm(): void {
@@ -81,6 +96,8 @@ export class BookingComponent implements OnInit, OnDestroy {
     const booking: BookingRequest = {
       routeId: this.routeData()!.id,
       passengerName: formValue.passengerName,
+      passengerEmail: formValue.passengerEmail,
+      passengerPhone: formValue.passengerPhone,
       passengerDocument: formValue.passengerDocument,
       seatNumber: formValue.seatNumber,
       username: username ?? undefined,
@@ -101,6 +118,26 @@ export class BookingComponent implements OnInit, OnDestroy {
 
   get seatNumbers(): number[] {
     return Array.from({ length: this.maxSeats() }, (_, i) => i + 1);
+  }
+
+  onCpfInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+    
+    let formatted = value;
+    if (value.length > 9) {
+      formatted = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      formatted = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+      formatted = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+    
+    input.value = formatted;
+    this.bookingForm.controls.passengerDocument.setValue(formatted);
   }
 
   /** Get payment method display name */

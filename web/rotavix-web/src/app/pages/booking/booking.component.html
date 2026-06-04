@@ -210,12 +210,19 @@
                 class="form-input"
                 formControlName="passengerDocument"
                 placeholder="000.000.000-00"
+                (input)="onCpfInput($event)"
               />
               @if (
                 bookingForm.controls.passengerDocument.touched &&
                 bookingForm.controls.passengerDocument.invalid
               ) {
-                <span class="form-error">Documento é obrigatório (mín. 11 dígitos).</span>
+                <span class="form-error">
+                  @if (bookingForm.controls.passengerDocument.errors?.['required']) {
+                    Documento é obrigatório.
+                  } @else if (bookingForm.controls.passengerDocument.errors?.['cpf']) {
+                    CPF inválido.
+                  }
+                </span>
               }
             </div>
 
@@ -263,6 +270,8 @@
                       class="booking__seat"
                       [class.booking__seat--selected]="selectedSeat() === seat"
                       [class.booking__seat--window]="seat % 4 === 1 || seat % 4 === 0"
+                      [class.booking__seat--occupied]="isSeatOccupied(seat)"
+                      [disabled]="isSeatOccupied(seat)"
                       (click)="selectSeat(seat)"
                       [attr.aria-label]="'Assento ' + seat"
                     >

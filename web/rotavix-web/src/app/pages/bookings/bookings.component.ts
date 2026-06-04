@@ -54,8 +54,6 @@ export class BookingsPage implements OnInit {
     const username = this.auth.username();
     if (username) {
       this.loadBookings(username);
-    } else {
-      this.bookings.set(SAMPLE_BOOKINGS);
     }
   }
 

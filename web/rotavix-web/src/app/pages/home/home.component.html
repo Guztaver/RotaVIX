@@ -159,6 +159,11 @@
               </div>
 
               <!-- Submit -->
+              @if (searchForm.hasError('sameCity') && searchForm.controls.origin.touched && searchForm.controls.destination.touched) {
+                <div class="form-error" style="text-align: center; margin-top: -10px; margin-bottom: 10px;">
+                  A origem e o destino não podem ser a mesma cidade.
+                </div>
+              }
               <button
                 type="submit"
                 class="btn btn-accent btn-lg home__submit-btn"

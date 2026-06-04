@@ -19,6 +19,15 @@ function notInPast(control: AbstractControl): ValidationErrors | null {
   return selected < today ? { past: true } : null;
 }
 
+function differentCities(group: AbstractControl): ValidationErrors | null {
+  const origin = group.get('origin')?.value;
+  const destination = group.get('destination')?.value;
+  if (origin && destination && origin.toLowerCase().trim() === destination.toLowerCase().trim()) {
+    return { sameCity: true };
+  }
+  return null;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -37,7 +46,7 @@ export class HomeComponent {
     origin: ['', [Validators.required, Validators.minLength(3)]],
     destination: ['', [Validators.required, Validators.minLength(3)]],
     date: ['', [Validators.required, notInPast]],
-  });
+  }, { validators: differentCities });
 
   readonly minDate = new Date().toISOString().split('T')[0];
 

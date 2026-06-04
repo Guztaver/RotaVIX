@@ -14,6 +14,7 @@ export interface BusRoute {
   availableSeats: number;
   busType: 'Leito' | 'Executivo' | 'Convencional';
   date: string;
+  occupiedSeats?: number[];
 }
 
 export interface Booking {
@@ -21,6 +22,8 @@ export interface Booking {
   routeId: number;
   passengerName: string;
   passengerDocument: string;
+  passengerEmail: string;
+  passengerPhone: string;
   seatNumber: number;
   bookingDate: string;
   createdAt: string;
@@ -65,6 +68,13 @@ export class RoutesService {
     if (!route) {
       throw new NotFoundException(`Rota com ID ${id} não encontrada`);
     }
+    
+    const bookings = this.db.db
+      .prepare('SELECT seat_number FROM bookings WHERE route_id = ?')
+      .all(id) as { seat_number: number }[];
+      
+    route.occupiedSeats = bookings.map((b) => b.seat_number);
+
     return route;
   }
 
@@ -93,12 +103,14 @@ export class RoutesService {
         .run(dto.routeId);
 
       const result = this.db.db.prepare(`
-        INSERT INTO bookings (route_id, passenger_name, passenger_document, seat_number, booking_date, created_at, username)
-        VALUES (@routeId, @passengerName, @passengerDocument, @seatNumber, @bookingDate, @createdAt, @username)
+        INSERT INTO bookings (route_id, passenger_name, passenger_document, passenger_email, passenger_phone, seat_number, booking_date, created_at, username)
+        VALUES (@routeId, @passengerName, @passengerDocument, @passengerEmail, @passengerPhone, @seatNumber, @bookingDate, @createdAt, @username)
       `).run({
         routeId: dto.routeId,
         passengerName: dto.passengerName,
         passengerDocument: dto.passengerDocument,
+        passengerEmail: dto.passengerEmail,
+        passengerPhone: dto.passengerPhone,
         seatNumber: dto.seatNumber,
         bookingDate: route.date,
         createdAt,
@@ -115,6 +127,8 @@ export class RoutesService {
       routeId: dto.routeId,
       passengerName: dto.passengerName,
       passengerDocument: dto.passengerDocument,
+      passengerEmail: dto.passengerEmail,
+      passengerPhone: dto.passengerPhone,
       seatNumber: dto.seatNumber,
       bookingDate: route.date,
       createdAt,

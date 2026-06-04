@@ -47,9 +47,10 @@ export class RoutesController {
 
   @Get('bookings')
   getBookings(@Query('username') username?: string) {
-    if (username) {
-      return this.routesService.getBookingsByUsername(username);
+    if (!username) {
+      const { UnauthorizedException } = require('@nestjs/common');
+      throw new UnauthorizedException('Acesso negado: username obrigatório.');
     }
-    return this.routesService.getBookings();
+    return this.routesService.getBookingsByUsername(username);
   }
 }
