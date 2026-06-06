@@ -40,6 +40,20 @@
             <span>Data</span>
             <strong>{{ bookingResult()!.bookingDate | date: 'dd/MM/yyyy' }}</strong>
           </div>
+          @if (bookingResult()!.paymentMethod) {
+            <div class="booking__success-row">
+              <span>Pagamento</span>
+              <strong>{{
+                bookingResult()!.paymentMethod === 'pix'
+                  ? 'Pix'
+                  : bookingResult()!.paymentMethod === 'credit'
+                    ? 'Cartão de crédito'
+                    : bookingResult()!.paymentMethod === 'boleto'
+                      ? 'Boleto'
+                      : bookingResult()!.paymentMethod
+              }}</strong>
+            </div>
+          }
         </div>
         <p class="booking__success-note">Você receberá os detalhes por e-mail.</p>
         <a routerLink="/" class="btn btn-primary btn-lg">Voltar ao início</a>
