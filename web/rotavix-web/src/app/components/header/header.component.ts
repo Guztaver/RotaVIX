@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,16 +12,11 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HeaderComponent {
   readonly showBack = input(false);
-  readonly refreshed = output<void>();
 
   private readonly location = inject(Location);
   readonly auth = inject(AuthService);
 
   goBack(): void {
     this.location.back();
-  }
-
-  refresh(): void {
-    this.refreshed.emit();
   }
 }
