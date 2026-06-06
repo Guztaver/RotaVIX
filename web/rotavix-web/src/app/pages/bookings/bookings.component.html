@@ -7,12 +7,21 @@
     <!-- Not logged in -->
     @if (!auth.username()) {
       <div class="bookings__notice card">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-info)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="16" x2="12" y2="12" />
           <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
-        <span>Exemplo de reservas. <strong>Entre</strong> para ver suas reservas reais.</span>
+        <span><strong>Faça login</strong> para consultar suas reservas.</span>
       </div>
     }
 
@@ -59,7 +68,9 @@
               </div>
             </div>
             <div class="bookings__card-footer">
-              <span class="bookings__created">Criada em {{ b.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="bookings__created"
+                >Criada em {{ b.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span
+              >
             </div>
           </div>
         }
@@ -69,7 +80,16 @@
     <!-- Empty (only for logged-in users with no real bookings) -->
     @if (!loading() && !error() && bookings().length === 0 && auth.username()) {
       <div class="bookings__empty card">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          width="56"
+          height="56"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-text-light)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
         </svg>
