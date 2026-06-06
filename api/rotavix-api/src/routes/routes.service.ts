@@ -361,6 +361,39 @@ export class RoutesService {
       .all(username) as Booking[];
   }
 
+  deleteBooking(id: number, username: string): { deleted: boolean } {
+    const booking = this.db.db
+      .prepare('SELECT id, route_id, username FROM bookings WHERE id = ?')
+      .get(id) as
+      | { id: number; route_id: number; username: string }
+      | undefined;
+
+    if (!booking) {
+      throw new NotFoundException(`Reserva #${id} não encontrada`);
+    }
+
+    if (
+      booking.username &&
+      booking.username.toLowerCase() !== username.toLowerCase()
+    ) {
+      const { UnauthorizedException } = require('@nestjs/common');
+      throw new UnauthorizedException(
+        'Você não pode excluir reservas de outro usuário.',
+      );
+    }
+
+    this.db.db.transaction(() => {
+      this.db.db.prepare('DELETE FROM bookings WHERE id = ?').run(id);
+      this.db.db
+        .prepare(
+          'UPDATE routes SET available_seats = available_seats + 1 WHERE id = ?',
+        )
+        .run(booking.route_id);
+    })();
+
+    return { deleted: true };
+  }
+
   /* ------------------------------------------------------------------ */
   /* Private helpers                                                     */
   /* ------------------------------------------------------------------ */

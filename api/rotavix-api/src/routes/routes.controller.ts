@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -52,5 +53,17 @@ export class RoutesController {
       throw new UnauthorizedException('Acesso negado: username obrigatório.');
     }
     return this.routesService.getBookingsByUsername(username);
+  }
+
+  @Delete('bookings/:id')
+  deleteBooking(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('username') username?: string,
+  ) {
+    if (!username) {
+      const { UnauthorizedException } = require('@nestjs/common');
+      throw new UnauthorizedException('Acesso negado: username obrigatório.');
+    }
+    return this.routesService.deleteBooking(id, username);
   }
 }

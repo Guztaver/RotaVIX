@@ -19,6 +19,7 @@ export class BookingsPage implements OnInit {
   readonly loading = signal(false);
   readonly bookings = signal<BookingResponse[]>([]);
   readonly error = signal<string | null>(null);
+  readonly deleting = signal<number | null>(null);
 
   ngOnInit(): void {
     const username = this.auth.username();
@@ -38,6 +39,31 @@ export class BookingsPage implements OnInit {
       error: () => {
         this.error.set('Erro ao carregar as reservas.');
         this.loading.set(false);
+      },
+    });
+  }
+
+  deleteBooking(booking: BookingResponse): void {
+    const username = this.auth.username();
+    if (!username) return;
+
+    if (
+      !confirm(
+        `Excluir a reserva #${booking.id}?\nAssento ${booking.seatNumber} — ${booking.passengerName}`,
+      )
+    ) {
+      return;
+    }
+
+    this.deleting.set(booking.id);
+    this.routeService.deleteBooking(booking.id, username).subscribe({
+      next: () => {
+        this.bookings.update((list) => list.filter((b) => b.id !== booking.id));
+        this.deleting.set(null);
+      },
+      error: () => {
+        this.error.set('Erro ao excluir a reserva.');
+        this.deleting.set(null);
       },
     });
   }

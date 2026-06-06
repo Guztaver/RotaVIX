@@ -132,6 +132,10 @@
 }
 
 .bookings__card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border-light);
 }
@@ -139,6 +143,31 @@
 .bookings__created {
   font-size: var(--font-size-xs);
   color: var(--color-text-light);
+}
+
+.bookings__delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-light);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.bookings__delete-btn:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.bookings__delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

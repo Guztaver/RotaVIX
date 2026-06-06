@@ -241,6 +241,16 @@ export class RouteService {
   }
 
   /* ------------------------------------------------------------------ */
+  /* Delete booking                                                     */
+  /* ------------------------------------------------------------------ */
+
+  deleteBooking(id: number, username: string): Observable<{ deleted: boolean }> {
+    return this.http.delete<{ deleted: boolean }>(`${this.apiBase}/bookings/${id}`, {
+      params: new HttpParams().set('username', username),
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Helpers                                                            */
   /* ------------------------------------------------------------------ */
 
