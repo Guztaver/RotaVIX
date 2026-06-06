@@ -49,6 +49,7 @@ export interface BookingResponse {
   seatNumber: number;
   bookingDate: string;
   createdAt: string;
+  paymentMethod?: string;
 }
 
 /** Structured error for the UI */

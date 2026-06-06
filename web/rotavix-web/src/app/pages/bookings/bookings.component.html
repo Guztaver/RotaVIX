@@ -68,6 +68,17 @@
               </div>
             </div>
             <div class="bookings__card-footer">
+              @if (b.paymentMethod) {
+                <span class="bookings__payment badge badge-accent">{{
+                  b.paymentMethod === 'pix'
+                    ? 'Pix'
+                    : b.paymentMethod === 'credit'
+                      ? 'Cartão'
+                      : b.paymentMethod === 'boleto'
+                        ? 'Boleto'
+                        : b.paymentMethod
+                }}</span>
+              }
               <span class="bookings__created"
                 >Criada em {{ b.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span
               >

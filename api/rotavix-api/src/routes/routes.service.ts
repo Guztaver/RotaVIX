@@ -32,6 +32,7 @@ export interface Booking {
   bookingDate: string;
   createdAt: string;
   username?: string;
+  paymentMethod?: string;
 }
 
 const COMPANIES = [
@@ -138,7 +139,6 @@ export class RoutesService {
     if (results.length === 0 && origin && destination && date) {
       const fakeRoutes = this.generateFakeRoutes(origin, destination, date, 5);
       this.insertRoutes(fakeRoutes);
-      // Re-query to get the freshly inserted routes with proper IDs
       return this.db.db
         .prepare(
           `SELECT id, origin, destination, company,
@@ -171,7 +171,6 @@ export class RoutesService {
       .get(id) as BusRoute | undefined;
 
     if (!route) {
-      // Auto-create a fake route when booking a non-existent route
       const today = new Date().toISOString().split('T')[0];
       const fake = this.generateFakeRoutes(
         'São Paulo',
@@ -180,7 +179,6 @@ export class RoutesService {
         1,
       )[0];
       this.insertRoutes([fake]);
-      // Re-query to get the inserted route
       const inserted = this.db.db
         .prepare(
           `SELECT id, origin, destination, company,
@@ -207,7 +205,6 @@ export class RoutesService {
   }
 
   createBooking(dto: CreateBookingDto): Booking {
-    // Ensure the route exists – create it if not
     let route = this.db.db
       .prepare(
         `SELECT id, origin, destination, company,
@@ -270,8 +267,8 @@ export class RoutesService {
       const result = this.db.db
         .prepare(
           `
-        INSERT INTO bookings (route_id, passenger_name, passenger_document, passenger_email, passenger_phone, seat_number, booking_date, created_at, username)
-        VALUES (@routeId, @passengerName, @passengerDocument, @passengerEmail, @passengerPhone, @seatNumber, @bookingDate, @createdAt, @username)
+        INSERT INTO bookings (route_id, passenger_name, passenger_document, passenger_email, passenger_phone, seat_number, booking_date, created_at, username, payment_method)
+        VALUES (@routeId, @passengerName, @passengerDocument, @passengerEmail, @passengerPhone, @seatNumber, @bookingDate, @createdAt, @username, @paymentMethod)
       `,
         )
         .run({
@@ -284,6 +281,7 @@ export class RoutesService {
           bookingDate: route.date,
           createdAt,
           username: dto.username ?? null,
+          paymentMethod: dto.paymentMethod ?? '',
         });
 
       return result.lastInsertRowid as number;
@@ -302,6 +300,7 @@ export class RoutesService {
       bookingDate: route.date,
       createdAt,
       username: dto.username,
+      paymentMethod: dto.paymentMethod,
     };
   }
 
@@ -317,7 +316,8 @@ export class RoutesService {
                 seat_number       AS seatNumber,
                 booking_date      AS bookingDate,
                 created_at        AS createdAt,
-                username
+                username,
+                payment_method    AS paymentMethod
          FROM bookings ORDER BY id DESC`,
       )
       .all() as Booking[];
@@ -335,7 +335,8 @@ export class RoutesService {
                 seat_number       AS seatNumber,
                 booking_date      AS bookingDate,
                 created_at        AS createdAt,
-                username
+                username,
+                payment_method    AS paymentMethod
          FROM bookings WHERE route_id = ? ORDER BY id`,
       )
       .all(routeId) as Booking[];
@@ -353,7 +354,8 @@ export class RoutesService {
                 seat_number       AS seatNumber,
                 booking_date      AS bookingDate,
                 created_at        AS createdAt,
-                username
+                username,
+                payment_method    AS paymentMethod
          FROM bookings WHERE LOWER(username) = LOWER(?) ORDER BY id DESC`,
       )
       .all(username) as Booking[];
@@ -363,7 +365,6 @@ export class RoutesService {
   /* Private helpers                                                     */
   /* ------------------------------------------------------------------ */
 
-  /** Generate fake routes for a given origin/destination/date */
   private generateFakeRoutes(
     origin: string,
     destination: string,
@@ -392,7 +393,7 @@ export class RoutesService {
       const arrM = totalMins % 60;
 
       routes.push({
-        id: 0, // placeholder – real ID assigned by DB
+        id: 0,
         origin,
         destination,
         company: COMPANIES[i % COMPANIES.length],
@@ -409,7 +410,6 @@ export class RoutesService {
     return routes;
   }
 
-  /** Insert routes into the database (in a transaction) */
   private insertRoutes(routes: BusRoute[]): void {
     const insert = this.db.db.prepare(`
       INSERT INTO routes (origin, destination, company, departure_time, arrival_time, duration, price, available_seats, bus_type, date)

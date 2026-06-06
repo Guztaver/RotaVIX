@@ -54,6 +54,7 @@ export class BookingComponent implements OnInit, OnDestroy {
   readonly selectedSeat = signal(1);
   readonly maxSeats = signal(40);
   readonly step = signal<'details' | 'confirm'>('details');
+  readonly formError = signal('');
 
   private sub?: Subscription;
 
@@ -87,8 +88,18 @@ export class BookingComponent implements OnInit, OnDestroy {
   }
 
   goToConfirm(): void {
+    this.formError.set('');
     if (this.bookingForm.invalid) {
       this.bookingForm.markAllAsTouched();
+      const errors: string[] = [];
+      const c = this.bookingForm.controls;
+      if (c.passengerName.invalid) errors.push('Nome (mín. 3 caracteres)');
+      if (c.passengerEmail.invalid) errors.push('E-mail válido');
+      if (c.passengerPhone.invalid) errors.push('Telefone (mín. 10 dígitos)');
+      if (c.passengerDocument.invalid) errors.push('CPF válido');
+      this.formError.set(
+        errors.length > 0 ? `Corrija: ${errors.join(', ')}.` : 'Verifique os campos obrigatórios.',
+      );
       return;
     }
     this.step.set('confirm');

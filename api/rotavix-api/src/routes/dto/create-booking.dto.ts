@@ -20,7 +20,12 @@ export class IsValidCpfConstraint implements ValidatorConstraintInterface {
     if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
     const cpfNumbers = cpf.split('').map((el) => +el);
     const rest = (count: number) =>
-      ((cpfNumbers.slice(0, count - 12).reduce((soma, el, index) => soma + el * (count - index), 0) * 10) % 11) % 10;
+      ((cpfNumbers
+        .slice(0, count - 12)
+        .reduce((soma, el, index) => soma + el * (count - index), 0) *
+        10) %
+        11) %
+      10;
     return rest(10) === cpfNumbers[9] && rest(11) === cpfNumbers[10];
   }
 
@@ -55,6 +60,10 @@ export class CreateBookingDto {
   @Min(1)
   @Max(60)
   seatNumber: number;
+
+  @IsOptional()
+  @IsString()
+  paymentMethod?: string;
 
   @IsOptional()
   @IsString()
