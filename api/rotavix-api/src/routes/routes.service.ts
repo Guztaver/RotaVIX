@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import { DatabaseService } from '../database/database.service';
 
@@ -35,7 +39,18 @@ export class RoutesService {
   constructor(private readonly db: DatabaseService) {}
 
   findAll(): BusRoute[] {
-    return this.db.db.prepare('SELECT * FROM routes ORDER BY date, id').all() as BusRoute[];
+    return this.db.db
+      .prepare(
+        `SELECT id, origin, destination, company,
+                departure_time AS departureTime,
+                arrival_time   AS arrivalTime,
+                duration, price,
+                available_seats AS availableSeats,
+                bus_type        AS busType,
+                date
+         FROM routes ORDER BY date, id`,
+      )
+      .all() as BusRoute[];
   }
 
   search(origin?: string, destination?: string, date?: string): BusRoute[] {
@@ -55,24 +70,43 @@ export class RoutesService {
       params.date = date;
     }
 
-    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const where =
+      conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     return this.db.db
-      .prepare(`SELECT * FROM routes ${where} ORDER BY date, id`)
+      .prepare(
+        `SELECT id, origin, destination, company,
+                departure_time AS departureTime,
+                arrival_time   AS arrivalTime,
+                duration, price,
+                available_seats AS availableSeats,
+                bus_type        AS busType,
+                date
+         FROM routes ${where} ORDER BY date, id`,
+      )
       .all(params) as BusRoute[];
   }
 
   findOne(id: number): BusRoute {
     const route = this.db.db
-      .prepare('SELECT * FROM routes WHERE id = ?')
+      .prepare(
+        `SELECT id, origin, destination, company,
+                departure_time AS departureTime,
+                arrival_time   AS arrivalTime,
+                duration, price,
+                available_seats AS availableSeats,
+                bus_type        AS busType,
+                date
+         FROM routes WHERE id = ?`,
+      )
       .get(id) as BusRoute | undefined;
     if (!route) {
       throw new NotFoundException(`Rota com ID ${id} não encontrada`);
     }
-    
+
     const bookings = this.db.db
       .prepare('SELECT seat_number FROM bookings WHERE route_id = ?')
       .all(id) as { seat_number: number }[];
-      
+
     route.occupiedSeats = bookings.map((b) => b.seat_number);
 
     return route;
@@ -99,23 +133,29 @@ export class RoutesService {
 
     const doBooking = this.db.db.transaction(() => {
       this.db.db
-        .prepare('UPDATE routes SET available_seats = available_seats - 1 WHERE id = ?')
+        .prepare(
+          'UPDATE routes SET available_seats = available_seats - 1 WHERE id = ?',
+        )
         .run(dto.routeId);
 
-      const result = this.db.db.prepare(`
+      const result = this.db.db
+        .prepare(
+          `
         INSERT INTO bookings (route_id, passenger_name, passenger_document, passenger_email, passenger_phone, seat_number, booking_date, created_at, username)
         VALUES (@routeId, @passengerName, @passengerDocument, @passengerEmail, @passengerPhone, @seatNumber, @bookingDate, @createdAt, @username)
-      `).run({
-        routeId: dto.routeId,
-        passengerName: dto.passengerName,
-        passengerDocument: dto.passengerDocument,
-        passengerEmail: dto.passengerEmail,
-        passengerPhone: dto.passengerPhone,
-        seatNumber: dto.seatNumber,
-        bookingDate: route.date,
-        createdAt,
-        username: dto.username ?? null,
-      });
+      `,
+        )
+        .run({
+          routeId: dto.routeId,
+          passengerName: dto.passengerName,
+          passengerDocument: dto.passengerDocument,
+          passengerEmail: dto.passengerEmail,
+          passengerPhone: dto.passengerPhone,
+          seatNumber: dto.seatNumber,
+          bookingDate: route.date,
+          createdAt,
+          username: dto.username ?? null,
+        });
 
       return result.lastInsertRowid as number;
     });
@@ -137,18 +177,56 @@ export class RoutesService {
   }
 
   getBookings(): Booking[] {
-    return this.db.db.prepare('SELECT * FROM bookings ORDER BY id DESC').all() as Booking[];
+    return this.db.db
+      .prepare(
+        `SELECT id,
+                route_id          AS routeId,
+                passenger_name    AS passengerName,
+                passenger_document AS passengerDocument,
+                passenger_email   AS passengerEmail,
+                passenger_phone   AS passengerPhone,
+                seat_number       AS seatNumber,
+                booking_date      AS bookingDate,
+                created_at        AS createdAt,
+                username
+         FROM bookings ORDER BY id DESC`,
+      )
+      .all() as Booking[];
   }
 
   getBookingsByRoute(routeId: number): Booking[] {
     return this.db.db
-      .prepare('SELECT * FROM bookings WHERE route_id = ? ORDER BY id')
+      .prepare(
+        `SELECT id,
+                route_id          AS routeId,
+                passenger_name    AS passengerName,
+                passenger_document AS passengerDocument,
+                passenger_email   AS passengerEmail,
+                passenger_phone   AS passengerPhone,
+                seat_number       AS seatNumber,
+                booking_date      AS bookingDate,
+                created_at        AS createdAt,
+                username
+         FROM bookings WHERE route_id = ? ORDER BY id`,
+      )
       .all(routeId) as Booking[];
   }
 
   getBookingsByUsername(username: string): Booking[] {
     return this.db.db
-      .prepare('SELECT * FROM bookings WHERE LOWER(username) = LOWER(?) ORDER BY id DESC')
+      .prepare(
+        `SELECT id,
+                route_id          AS routeId,
+                passenger_name    AS passengerName,
+                passenger_document AS passengerDocument,
+                passenger_email   AS passengerEmail,
+                passenger_phone   AS passengerPhone,
+                seat_number       AS seatNumber,
+                booking_date      AS bookingDate,
+                created_at        AS createdAt,
+                username
+         FROM bookings WHERE LOWER(username) = LOWER(?) ORDER BY id DESC`,
+      )
       .all(username) as Booking[];
   }
 }
