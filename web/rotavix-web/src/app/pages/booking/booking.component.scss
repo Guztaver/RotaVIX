@@ -569,6 +569,31 @@
   gap: var(--space-3);
 }
 
+/* --- Boleto --- */
+.booking__boleto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.booking__boleto-code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  word-break: break-all;
+  letter-spacing: 0.5px;
+}
+
+.booking__boleto-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+}
+
 /* ================================================================
    Responsive
    ================================================================ */

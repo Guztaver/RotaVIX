@@ -6,13 +6,20 @@ import type { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { type BookingRequest, RouteService } from '../../services/route.service';
 
-function isValidCpf(control: import('@angular/forms').AbstractControl): import('@angular/forms').ValidationErrors | null {
+function isValidCpf(
+  control: import('@angular/forms').AbstractControl,
+): import('@angular/forms').ValidationErrors | null {
   if (!control.value) return null;
   let cpf = control.value.replace(/[^\d]+/g, '');
   if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return { cpf: true };
   const cpfNumbers = cpf.split('').map((el: string) => +el);
   const rest = (count: number) =>
-    ((cpfNumbers.slice(0, count - 12).reduce((soma: number, el: number, index: number) => soma + el * (count - index), 0) * 10) % 11) % 10;
+    ((cpfNumbers
+      .slice(0, count - 12)
+      .reduce((soma: number, el: number, index: number) => soma + el * (count - index), 0) *
+      10) %
+      11) %
+    10;
   return rest(10) === cpfNumbers[9] && rest(11) === cpfNumbers[10] ? null : { cpf: true };
 }
 
@@ -41,6 +48,7 @@ export class BookingComponent implements OnInit, OnDestroy {
     passengerDocument: ['', [Validators.required, isValidCpf]],
     seatNumber: [1, [Validators.required, Validators.min(1)]],
     paymentMethod: ['pix', Validators.required],
+    cardNumber: [''],
   });
 
   readonly selectedSeat = signal(1);
@@ -100,6 +108,7 @@ export class BookingComponent implements OnInit, OnDestroy {
       passengerPhone: formValue.passengerPhone,
       passengerDocument: formValue.passengerDocument,
       seatNumber: formValue.seatNumber,
+      paymentMethod: formValue.paymentMethod,
       username: username ?? undefined,
     };
 
@@ -126,7 +135,7 @@ export class BookingComponent implements OnInit, OnDestroy {
     if (value.length > 11) {
       value = value.substring(0, 11);
     }
-    
+
     let formatted = value;
     if (value.length > 9) {
       formatted = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
@@ -135,9 +144,31 @@ export class BookingComponent implements OnInit, OnDestroy {
     } else if (value.length > 3) {
       formatted = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
     }
-    
+
     input.value = formatted;
     this.bookingForm.controls.passengerDocument.setValue(formatted);
+  }
+
+  /** Auto-format card number as XXXX-XXXX-XXXX-XXXX */
+  onCardInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 16) {
+      value = value.substring(0, 16);
+    }
+    const groups = value.match(/.{1,4}/g) ?? [];
+    const formatted = groups.join('-');
+    input.value = formatted;
+    this.bookingForm.controls.cardNumber.setValue(formatted);
+  }
+
+  /** Fake boleto barcode for display */
+  get boletoCode(): string {
+    const block = () =>
+      String(Math.floor(Math.random() * 100000))
+        .padStart(5, '0')
+        .replace(/(\d{5})(\d{1,5})/, '$1.$2');
+    return `${block()} ${block()} ${block()} ${block()} 9 ${String(Math.floor(Math.random() * 1e14)).padStart(14, '0')}`;
   }
 
   /** Get payment method display name */

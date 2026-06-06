@@ -54,12 +54,6 @@
             <span class="badge badge-primary">{{ filterBusType() }}</span>
           }
         </button>
-        <button class="btn btn-outline btn-sm" (click)="handleRefresh()">
-          @if (loading()) {
-            <span class="spinner"></span>
-          }
-          Atualizar
-        </button>
       </div>
     </div>
 
@@ -146,7 +140,7 @@
             </ul>
           }
         </div>
-        <button class="btn btn-primary btn-sm" (click)="handleRefresh()">Tentar novamente</button>
+        <a routerLink="/" class="btn btn-primary btn-sm">Nova busca</a>
       </div>
     }
 

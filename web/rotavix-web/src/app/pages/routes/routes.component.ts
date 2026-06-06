@@ -92,15 +92,6 @@ export class RoutesComponent implements OnInit, OnDestroy {
     return [...types];
   }
 
-  handleRefresh(): void {
-    const o = this.queryOrigin();
-    const d = this.queryDestination();
-    const dt = this.queryDate();
-    if (o && d && dt) {
-      this.routeService.searchRoutes({ origin: o, destination: d, date: dt }).subscribe();
-    }
-  }
-
   selectRoute(route: RouteResult): void {
     this.routeService.selectedRoute.set(route);
     this.router.navigate(['/booking', route.id]);

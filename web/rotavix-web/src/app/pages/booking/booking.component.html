@@ -382,6 +382,33 @@
               </div>
             </div>
 
+            <!-- Credit card number input -->
+            @if (bookingForm.controls.paymentMethod.value === 'credit') {
+              <div class="form-group animate-fade-in">
+                <label class="form-label" for="cardNumber">Numero do cartao</label>
+                <input
+                  id="cardNumber"
+                  type="text"
+                  class="form-input"
+                  formControlName="cardNumber"
+                  placeholder="0000-0000-0000-0000"
+                  (input)="onCardInput($event)"
+                  autocomplete="off"
+                />
+              </div>
+            }
+
+            <!-- Boleto code display -->
+            @if (bookingForm.controls.paymentMethod.value === 'boleto') {
+              <div class="booking__boleto animate-fade-in">
+                <span class="form-label">Codigo de barras</span>
+                <div class="booking__boleto-code">{{ boletoCode }}</div>
+                <span class="booking__boleto-note"
+                  >Use este codigo para pagar em qualquer banco, loterica ou app.</span
+                >
+              </div>
+            }
+
             <button type="submit" class="btn btn-accent btn-lg w-full">
               Continuar para revisão
             </button>
